@@ -11,14 +11,45 @@ var Configuration = builder.Configuration;
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:3000");
+                          policy.AllowAnyHeader();
+                          policy.AllowAnyMethod();
+                      });
+});
+
+// services.AddCors(options =>
+//             {
+//                 options.AddPolicy("AllowAllOrigins",
+//                     builder =>
+//                     {
+//                         builder.AllowAnyOrigin();
+//                         builder.AllowAnyHeader();
+//                         builder.AllowAnyMethod();
+//                     });
+//             });
 
 var app = builder.Build();
+
+app.UseCors(MyAllowSpecificOrigins);
+
 
 using (var context = app.Services.GetService<AppDbContext>())
 {
     if (context != null)
     {
-        await context.Database.MigrateAsync();
+        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+
+        if (pendingMigrations != null)
+        {
+            await context.Database.MigrateAsync();
+        }
     }
 }
 
