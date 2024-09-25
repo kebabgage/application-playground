@@ -1,1 +1,2 @@
-docker run --name playground-postgres -e POSTGRES_PASSWORD=admin -e POSTGRES_USER=root -p 5432:5432 -d postgres   
+docker rm playground-postgres
+docker run --network my-network --name playground-postgres -e POSTGRES_PASSWORD=admin -e POSTGRES_USER=root -p 5432:5432 -d postgres
