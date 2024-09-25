@@ -30,21 +30,29 @@ export const AddRecipe = () => {
     <div>
       <input
         value={form.title}
-        onChange={(newValue) => {
-          if (newValue === undefined) {
-            setForm((draft) => (draft.title = ""));
+        onChange={(event) => {
+          if (event.target.value === undefined) {
+            setForm((draft) => {
+              draft.title = "";
+            });
           } else {
-            setForm((draft) => draft.title);
+            setForm((draft) => {
+              draft.title = event.target.value;
+            });
           }
         }}
       />
       <input
-        value={form.title}
-        onChange={(newValue) => {
-          if (newValue === undefined) {
-            setForm((draft) => (draft.description = ""));
+        value={form.description}
+        onChange={(event) => {
+          if (event.target.value === undefined) {
+            setForm((draft) => {
+              draft.description = "";
+            });
           } else {
-            setForm((draft) => draft.description);
+            setForm((draft) => {
+              draft.description = event.target.value;
+            });
           }
         }}
       />

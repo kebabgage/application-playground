@@ -10,8 +10,8 @@ export class Api {
     const response = await fetch("http://localhost:8000/recipe", {
       method: "POST",
       body: JSON.stringify({
-        Title: "This is my title",
-        Description: "This is my description",
+        Title: recipe.title,
+        Description: recipe.description,
       }),
       headers: {
         Accept: "*/*",
@@ -20,6 +20,21 @@ export class Api {
     });
 
     return response.json();
+  }
+
+  async deleteRecipe(recipe: Recipe): Promise<void> {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/recipe/${recipe.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      return;
+    } catch (error) {
+      throw new Error("Oh no! ");
+    }
   }
 }
 

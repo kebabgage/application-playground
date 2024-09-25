@@ -98,6 +98,19 @@ recipes.MapPost("/", (Recipe recipe, AppDbContext dbContext) =>
 });
 
 
+recipes.MapDelete("/{id}", async (int id, AppDbContext dbContext) =>
+{
+    if (await dbContext.Recipes.FindAsync(id) is Recipe recipe)
+    {
+        dbContext.Recipes.Remove(recipe);
+        await dbContext.SaveChangesAsync();
+        return Results.NoContent();
+    }
+
+    return Results.NotFound();
+});
+
+
 
 
 app.Run();
