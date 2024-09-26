@@ -19,7 +19,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div>
+    <>
       <TextField
         label="Username"
         value={form.username}
@@ -42,6 +42,6 @@ export const LoginPage = () => {
       <Button variant="contained" onClick={() => handleSubmit()}>
         Submit
       </Button>
-    </div>
+    </>
   );
 };

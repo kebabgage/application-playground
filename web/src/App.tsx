@@ -1,8 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RecipesList } from "./components/RecipesList";
-import { AddRecipe } from "./components/AddRecipe";
-import { Typography } from "@mui/material";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AddRecipePage } from "./pages/AddRecipePage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 
@@ -16,7 +14,8 @@ const PageWrapper = ({ children }: PageWrapperProps) => {
     <div
       id="App"
       style={{
-        width: "100%",
+        width: "100vw",
+        height: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -36,7 +35,7 @@ function App() {
     },
     {
       path: "/new-recipe",
-      element: <AddRecipe />,
+      element: <AddRecipePage />,
     },
     {
       path: "/login",

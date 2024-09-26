@@ -3,6 +3,7 @@ import { getApi } from "../api/Api";
 import { Recipe } from "../types/Recipe";
 import { Box, Button, Card, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
+import { TagPicker } from "rsuite";
 
 export const RecipesList = () => {
   const api = getApi();
@@ -50,6 +51,7 @@ export const RecipesList = () => {
               <Typography>{recipe.title}</Typography>
               <Typography>{recipe.description}</Typography>
             </div>
+            <Typography>Submitted by {recipe.username}</Typography>
           </Card>
         );
       })}

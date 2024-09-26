@@ -12,6 +12,7 @@ export class Api {
       body: JSON.stringify({
         Title: recipe.title,
         Description: recipe.description,
+        Username: recipe.username,
       }),
       headers: {
         Accept: "*/*",
