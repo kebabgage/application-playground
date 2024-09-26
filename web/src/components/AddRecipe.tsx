@@ -1,6 +1,8 @@
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { getApi } from "../api/Api";
 import { useImmer } from "use-immer";
+import { Box, Button, Input, TextField } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface FormValues {
   title: string;
@@ -10,6 +12,7 @@ interface FormValues {
 export const AddRecipe = () => {
   const queryClient = useQueryClient();
   const api = getApi();
+  const navigate = useNavigate();
 
   const [form, setForm] = useImmer<FormValues>({ title: "", description: "" });
 
@@ -22,13 +25,17 @@ export const AddRecipe = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipe"] });
+
+      // ??
+      navigate("/");
     },
     mutationKey: ["post", "recipe"],
   });
 
   return (
-    <div>
-      <input
+    <Box>
+      <TextField
+        label="Title"
         value={form.title}
         onChange={(event) => {
           if (event.target.value === undefined) {
@@ -42,7 +49,8 @@ export const AddRecipe = () => {
           }
         }}
       />
-      <input
+      <TextField
+        label="Description"
         value={form.description}
         onChange={(event) => {
           if (event.target.value === undefined) {
@@ -56,7 +64,9 @@ export const AddRecipe = () => {
           }
         }}
       />
-      <button onClick={() => mutation.mutate()}>Submit</button>
-    </div>
+      <Button variant="contained" onClick={() => mutation.mutate()}>
+        Submit
+      </Button>
+    </Box>
   );
 };

@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getApi } from "../api/Api";
 import { Recipe } from "../types/Recipe";
+import { Box, Button, Card, Typography } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export const Recipes = () => {
+export const RecipesList = () => {
   const api = getApi();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const queryFn = () => {
     return api.getRecipes();
@@ -27,18 +30,29 @@ export const Recipes = () => {
   }
 
   return (
-    <div>
+    <Box
+      sx={{
+        width: "60%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignContent: "center",
+        gap: 2,
+      }}
+    >
+      <Button variant="contained" onClick={() => navigate("/new-recipe")}>
+        Add New Recipe!
+      </Button>
       {data?.map((recipe) => {
         return (
-          <div key={recipe.id} style={{ display: "inline" }}>
+          <Card key={recipe.id}>
             <div>
-              <p>{recipe.title}</p>
-              <p>{recipe.description}</p>
+              <Typography>{recipe.title}</Typography>
+              <Typography>{recipe.description}</Typography>
             </div>
-            <button onClick={() => mutation.mutate(recipe)}>Delete</button>
-          </div>
+          </Card>
         );
       })}
-    </div>
+    </Box>
   );
 };
