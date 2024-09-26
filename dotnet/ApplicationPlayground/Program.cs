@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,8 +9,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var Configuration = builder.Configuration;
+var ConnectionString = Environment.GetEnvironmentVariable("DOCKER") switch
+{
+    "true" => "DefaultConnection",
+    _ => "LocalhostConnection",
+};
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+        options.UseNpgsql(Configuration.GetConnectionString(ConnectionString)));
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -24,35 +32,24 @@ builder.Services.AddCors(options =>
                       });
 });
 
-// services.AddCors(options =>
-//             {
-//                 options.AddPolicy("AllowAllOrigins",
-//                     builder =>
-//                     {
-//                         builder.AllowAnyOrigin();
-//                         builder.AllowAnyHeader();
-//                         builder.AllowAnyMethod();
-//                     });
-//             });
 
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
 
-
-using (var context = app.Services.GetService<AppDbContext>())
+using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetService<AppDbContext>();
+
     if (context != null)
     {
         var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-
         if (pendingMigrations != null)
         {
             await context.Database.MigrateAsync();
         }
     }
 }
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -69,7 +66,6 @@ var recipes = app.MapGroup("/recipe");
 
 recipes.MapGet("/", (AppDbContext dbContext) =>
 {
-    Console.WriteLine("LIST /recipes");
     return dbContext.Recipes.OrderBy(r => r.Id).ToList();
 });
 
