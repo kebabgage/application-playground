@@ -13,6 +13,8 @@ export class Api {
         Title: recipe.title,
         Description: recipe.description,
         Username: recipe.username,
+        MethodSteps: recipe.methodStepsList,
+        Ingredients: recipe.ingredients,
       }),
       headers: {
         Accept: "*/*",

@@ -26,9 +26,9 @@ export const RecipesList = () => {
     mutationKey: ["DELETE", "recipe"],
   });
 
-  if (data === undefined || isLoading) {
-    return <p>Loading...</p>;
-  }
+  // if (data === undefined || isLoading) {
+  //   return <p>Loading...</p>;
+  // }
 
   return (
     <Box
@@ -51,6 +51,7 @@ export const RecipesList = () => {
               <Typography>{recipe.title}</Typography>
               <Typography>{recipe.description}</Typography>
             </div>
+            <Typography>Featuring {recipe.ingredients.join(",")}</Typography>
             <Typography>Submitted by {recipe.username}</Typography>
           </Card>
         );

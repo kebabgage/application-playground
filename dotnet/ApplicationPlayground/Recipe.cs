@@ -11,4 +11,7 @@ public class Recipe
 
     public string? Username { get; set; }
 
+    public string[] MethodSteps { get; set; }
+    public string[] Ingredients { get; set; }
+
 }

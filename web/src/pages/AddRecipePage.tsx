@@ -3,6 +3,9 @@ import {
   Button,
   Input,
   InputAdornment,
+  Step,
+  StepLabel,
+  Stepper,
   TextField,
   Typography,
 } from "@mui/material";
@@ -12,6 +15,8 @@ import { useCookies } from "react-cookie";
 import { getApi } from "../api/Api";
 import { useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
+
+const steps = ["Title", "Description", "Ingredients", "Method"];
 
 const TOTAL_STEPS = 4;
 
@@ -27,7 +32,7 @@ export const AddRecipePage = () => {
   const queryClient = useQueryClient();
   const api = getApi();
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
 
   const [form, setForm] = useImmer<FormValues>({
     title: "",
@@ -42,21 +47,43 @@ export const AddRecipePage = () => {
         title: form.title,
         description: form.description,
         username: cookies["user"].username,
+        ingredients: form.ingredients,
+        methodStepsList: form.methodSteps,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipe"] });
 
-      // ??
       navigate("/");
     },
     mutationKey: ["post", "recipe"],
   });
 
-  console.log(form.ingredients);
-
   return (
     <>
+      <Box sx={{ position: "absolute", top: 50, width: "40%" }}>
+        <Stepper activeStep={step} alternativeLabel>
+          {steps.map((label, index) => {
+            const stepProps: { completed?: boolean } = {};
+            const labelProps: {
+              optional?: React.ReactNode;
+            } = {};
+            // if (isStepOptional(index)) {
+            //   labelProps.optional = (
+            //     <Typography variant="caption">Optional</Typography>
+            //   );
+            // }
+            // if (isStepSkipped(index)) {
+            //   stepProps.completed = false;
+            // }
+            return (
+              <Step key={label} {...stepProps}>
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
+      </Box>
       <Box
         width="40%"
         display="flex"
@@ -64,7 +91,7 @@ export const AddRecipePage = () => {
         justifyContent="center"
       >
         {/* The title page  */}
-        {step === 1 && (
+        {step === 0 && (
           <>
             <Typography>Whats your recipe called? </Typography>
             <TextField
@@ -87,7 +114,7 @@ export const AddRecipePage = () => {
           </>
         )}
         {/* The description page  */}
-        {step === 2 && (
+        {step === 1 && (
           <>
             <Typography>Describe your recipe in a few words</Typography>
             <TextField
@@ -104,7 +131,7 @@ export const AddRecipePage = () => {
           </>
         )}
         {/* The ingredients page  */}
-        {step === 3 && (
+        {step === 2 && (
           <>
             <Typography>What is in your recipe?</Typography>
             {form.ingredients.map((ingredient, index, array) => {
@@ -136,7 +163,7 @@ export const AddRecipePage = () => {
           </>
         )}
         {/* The method page  */}
-        {step === 4 && (
+        {step === 3 && (
           <>
             <Typography>
               What steps are involved in making your recipe
@@ -168,7 +195,7 @@ export const AddRecipePage = () => {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          {index + 1}
+                          {index + 1}.
                         </InputAdornment>
                       ),
                     },
@@ -186,14 +213,14 @@ export const AddRecipePage = () => {
             justifyContent: "space-between",
           }}
         >
-          {step !== 1 ? (
+          {step !== 0 ? (
             <Button variant="contained" onClick={() => setStep(step - 1)}>
               Previous
             </Button>
           ) : (
             <Box></Box>
           )}
-          {step !== TOTAL_STEPS ? (
+          {step < steps.length - 1 ? (
             <Button variant="contained" onClick={() => setStep(step + 1)}>
               Next
             </Button>
