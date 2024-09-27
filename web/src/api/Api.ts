@@ -3,7 +3,7 @@ import { Recipe } from "../types/Recipe";
 export class Api {
   getHost(): string {
     if (process.env.NODE_ENV === "production") {
-      return "playground-dotnet:8080";
+      return `${window.location.host}/api`;
     } else {
       return "localhost:8000";
     }
