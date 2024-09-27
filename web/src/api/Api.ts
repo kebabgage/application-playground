@@ -1,13 +1,20 @@
 import { Recipe } from "../types/Recipe";
 
 export class Api {
+  getHost(): string {
+    if (process.env.NODE_ENV === "production") {
+      return "playground-dotnet:8080";
+    } else {
+      return "localhost:8000";
+    }
+  }
   async getRecipes(): Promise<Recipe[]> {
-    const response = await fetch("http://localhost:8000/recipe");
+    const response = await fetch(`http://${this.getHost()}/recipe`);
     return await response.json();
   }
 
   async postRecipe(recipe: Recipe): Promise<Recipe> {
-    const response = await fetch("http://localhost:8000/recipe", {
+    const response = await fetch(`http://${this.getHost()}/recipe`, {
       method: "POST",
       body: JSON.stringify({
         Title: recipe.title,
@@ -28,7 +35,7 @@ export class Api {
   async deleteRecipe(recipe: Recipe): Promise<void> {
     try {
       const response = await fetch(
-        `http://localhost:8000/recipe/${recipe.id}`,
+        `http://${this.getHost()}/recipe/${recipe.id}`,
         {
           method: "DELETE",
         }
