@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
@@ -20,28 +20,33 @@ export const LoginPage = () => {
 
   return (
     <>
-      <TextField
-        label="Username"
-        value={form.username}
-        onChange={(event) => {
-          setForm((draft) => {
-            draft.username = event.target.value ?? "";
-          });
-        }}
-      />
-      <TextField
-        label="Email"
-        value={form.email}
-        onChange={(event) => {
-          setForm((draft) => {
-            draft.email = event.target.value ?? "";
-          });
-        }}
-      />
-
-      <Button variant="contained" onClick={() => handleSubmit()}>
-        Submit
-      </Button>
+      <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
+        <TextField
+          label="Username"
+          value={form.username}
+          onChange={(event) => {
+            setForm((draft) => {
+              draft.username = event.target.value ?? "";
+            });
+          }}
+          variant="standard"
+        />
+        <TextField
+          label="Email"
+          value={form.email}
+          onChange={(event) => {
+            setForm((draft) => {
+              draft.email = event.target.value ?? "";
+            });
+          }}
+          variant="standard"
+        />
+      </Box>
+      <Box paddingTop={5}>
+        <Button variant="contained" onClick={() => handleSubmit()}>
+          Submit
+        </Button>
+      </Box>
     </>
   );
 };

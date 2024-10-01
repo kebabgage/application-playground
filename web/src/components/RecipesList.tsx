@@ -4,11 +4,14 @@ import { Recipe } from "../types/Recipe";
 import { Box, Button, Card, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TagPicker } from "rsuite";
+import { RecipeCard } from "./RecipeCard";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 
 export const RecipesList = () => {
   const api = getApi();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const isSmallScreen = useIsSmallScreen();
 
   const queryFn = () => {
     return api.getRecipes();
@@ -16,24 +19,10 @@ export const RecipesList = () => {
 
   const { data, isLoading } = useQuery({ queryFn, queryKey: ["recipe"] });
 
-  const mutation = useMutation({
-    mutationFn: (recipe: Recipe) => {
-      return api.deleteRecipe(recipe);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recipe"] });
-    },
-    mutationKey: ["DELETE", "recipe"],
-  });
-
-  // if (data === undefined || isLoading) {
-  //   return <p>Loading...</p>;
-  // }
-
   return (
     <Box
       sx={{
-        width: "60%",
+        width: isSmallScreen ? "60%" : "50%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -41,21 +30,21 @@ export const RecipesList = () => {
         gap: 2,
       }}
     >
-      <Button variant="contained" onClick={() => navigate("/new-recipe")}>
-        Add New Recipe!
-      </Button>
-      {data?.map((recipe) => {
-        return (
-          <Card key={recipe.id}>
-            <div>
-              <Typography>{recipe.title}</Typography>
-              <Typography>{recipe.description}</Typography>
-            </div>
-            <Typography>Featuring {recipe.ingredients.join(",")}</Typography>
-            <Typography>Submitted by {recipe.username}</Typography>
-          </Card>
-        );
-      })}
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Button
+          size="large"
+          variant="contained"
+          onClick={() => navigate("/new-recipe")}
+        >
+          Add New Recipe!
+        </Button>
+      </Box>
+      {data?.map((recipe) => (
+        <RecipeCard
+          recipe={recipe}
+          onClick={() => navigate("/recipe" + "?id=" + recipe.id)}
+        />
+      ))}
     </Box>
   );
 };

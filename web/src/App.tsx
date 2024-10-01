@@ -1,8 +1,16 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+} from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AddRecipePage } from "./pages/AddRecipePage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
+import { RecipePage } from "./pages/RecipePage";
+import { useCookies } from "react-cookie";
+import { useEffect } from "react";
+import { getApi } from "./api/Api";
 
 const queryClient = new QueryClient();
 
@@ -10,6 +18,25 @@ interface PageWrapperProps {
   children: React.ReactNode;
 }
 const PageWrapper = ({ children }: PageWrapperProps) => {
+  const api = getApi();
+
+  const [cookies] = useCookies(["user"]);
+  const mutation = useMutation({
+    mutationFn: () => {
+      return api.postUser({
+        Username: cookies.user.username,
+        Email: cookies.user.Email,
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (cookies.user !== null) {
+      console.log("We are already logged in ");
+      mutation.mutate();
+    }
+  }, [cookies.user]);
+
   return (
     <div
       id="App"
@@ -41,7 +68,14 @@ function App() {
       path: "/login",
       element: <LoginPage />,
     },
+    {
+      path: "/recipe",
+      element: <RecipePage />,
+    },
   ]);
+
+  const api = getApi();
+
   return (
     <QueryClientProvider client={queryClient}>
       <PageWrapper>

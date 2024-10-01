@@ -15,7 +15,6 @@ var ConnectionString = Environment.GetEnvironmentVariable("DOCKER") switch
     _ => "LocalhostConnection",
 };
 
-
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString(ConnectionString)));
 
@@ -69,6 +68,15 @@ recipes.MapGet("/", (AppDbContext dbContext) =>
     return dbContext.Recipes.OrderBy(r => r.Id).ToList();
 });
 
+recipes.MapGet("/{id}", async (int id, AppDbContext dbContext) =>
+{
+    var recipe = await dbContext.Recipes.FindAsync(id);
+
+    if (recipe is null) return Results.NotFound(id);
+
+    return Results.Ok(recipe);
+});
+
 
 recipes.MapPut("/{id}", async (int id, Recipe inputRecipe, AppDbContext db) =>
 {
@@ -106,6 +114,46 @@ recipes.MapDelete("/{id}", async (int id, AppDbContext dbContext) =>
     return Results.NotFound();
 });
 
+var users = app.MapGroup("/users");
+
+users.MapGet("/", (AppDbContext dbContext) =>
+{
+    return dbContext.Users.OrderBy(r => r.Id).ToList();
+});
+
+users.MapGet("/{id}", async (int id, AppDbContext dbContext) =>
+{
+
+    var user = await dbContext.Users.FindAsync(id);
+
+    if (user is null) return Results.NotFound(id);
+
+    return Results.Ok(user);
+});
+
+users.MapPost("/", async (User user, AppDbContext dbContext) =>
+{
+    // Check if we already have someone with this user 
+    var userExists = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+
+    if (userExists == null)
+    {
+        user.LastLoggedIn = DateTime.UtcNow;
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+
+        return Results.Created($"/users/{user.Id}", user);
+    }
+    else
+    {
+        // Just incase they login and change their username
+        userExists.UserName = user.UserName;
+        userExists.LastLoggedIn = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync();
+        return Results.Created($"/users/{user.Id}", userExists);
+    }
+
+});
 
 
 

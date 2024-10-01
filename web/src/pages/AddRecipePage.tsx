@@ -8,6 +8,8 @@ import {
   Stepper,
   TextField,
   Typography,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -15,8 +17,9 @@ import { useCookies } from "react-cookie";
 import { getApi } from "../api/Api";
 import { useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 
-const steps = ["Title", "Description", "Ingredients", "Method"];
+const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
 
 const TOTAL_STEPS = 4;
 
@@ -25,9 +28,11 @@ interface FormValues {
   description: string;
   ingredients: string[];
   methodSteps: string[];
+  image?: any;
 }
 
 export const AddRecipePage = () => {
+  const isSmallScreen = useIsSmallScreen();
   const [cookies] = useCookies(["user"]);
   const queryClient = useQueryClient();
   const api = getApi();
@@ -47,8 +52,8 @@ export const AddRecipePage = () => {
         title: form.title,
         description: form.description,
         username: cookies["user"].username,
-        ingredients: form.ingredients,
-        methodStepsList: form.methodSteps,
+        ingredients: form.ingredients.filter((ingredient) => ingredient !== ""),
+        methodSteps: form.methodSteps.filter((ingredient) => ingredient !== ""),
       });
     },
     onSuccess: () => {
@@ -61,8 +66,23 @@ export const AddRecipePage = () => {
 
   return (
     <>
-      <Box sx={{ position: "absolute", top: 50, width: "40%" }}>
-        <Stepper activeStep={step} alternativeLabel>
+      <Box
+        sx={{
+          display: "flex",
+          position: "absolute",
+          top: 50,
+          width: "100%",
+          left: 0,
+          justifyContent: "center",
+        }}
+      >
+        <Stepper
+          sx={{
+            width: isSmallScreen ? "default" : "60%",
+          }}
+          activeStep={step}
+          alternativeLabel
+        >
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
@@ -203,6 +223,37 @@ export const AddRecipePage = () => {
                 />
               );
             })}
+          </>
+        )}
+        {step === 4 && (
+          <>
+            {form.image && (
+              <div>
+                {/* Display the selected image */}
+                <img
+                  alt="not found"
+                  width={"250px"}
+                  src={URL.createObjectURL(form.image)}
+                />
+                <br /> <br />
+                {/* Button to remove the selected image */}
+                {/* <button onClick={() => setSelectedImage(null)}>Remove</button> */}
+              </div>
+            )}
+            <Button variant="contained" component="label">
+              Upload File
+              <input
+                type="file"
+                hidden
+                onChange={(event) =>
+                  setForm((draft) => {
+                    if (event.target.files) {
+                      draft.image = event?.target?.files[0] ?? undefined;
+                    }
+                  })
+                }
+              />
+            </Button>
           </>
         )}
         <Box
