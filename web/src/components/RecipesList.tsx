@@ -41,6 +41,7 @@ export const RecipesList = () => {
       </Box>
       {data?.map((recipe) => (
         <RecipeCard
+          key={recipe.id}
           recipe={recipe}
           onClick={() => navigate("/recipe" + "?id=" + recipe.id)}
         />

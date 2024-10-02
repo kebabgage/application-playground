@@ -1,5 +1,9 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,13 @@ var ConnectionString = Environment.GetEnvironmentVariable("DOCKER") switch
     "true" => "DefaultConnection",
     _ => "LocalhostConnection",
 };
+
+var StoragePath = Environment.GetEnvironmentVariable("DOCKER") switch
+{
+    "true" => Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"../files")),
+    _ => Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\filesystem\")),
+};
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString(ConnectionString)));
@@ -32,9 +43,30 @@ builder.Services.AddCors(options =>
 });
 
 
+// Just setting the name of XSRF token
+builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
+
 var app = builder.Build();
+Console.WriteLine(StoragePath);
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Get token endpoint
+app.MapGet("antiforgery/token", (IAntiforgery forgeryService, HttpContext context) =>
+{
+    var tokens = forgeryService.GetAndStoreTokens(context);
+    var xsrfToken = tokens.RequestToken!;
+    return TypedResults.Content(xsrfToken, "text/plain");
+});
 
 app.UseCors(MyAllowSpecificOrigins);
+
+app.UseAntiforgery();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -152,9 +184,31 @@ users.MapPost("/", async (User user, AppDbContext dbContext) =>
         await dbContext.SaveChangesAsync();
         return Results.Created($"/users/{user.Id}", userExists);
     }
-
 });
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           StoragePath),
+    RequestPath = "/images"
+});
+
+app.MapPost("/image", async (IFormFile file) =>
+{
+    if (file.Length > 0)
+    {
+        var fileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(file.FileName));
+        var filePath = Path.Combine(StoragePath, fileName);
+        // filePath = Path.ChangeExtension(filePath, Path.GetExtension(file.FileName));
+
+        using var stream = File.Create(filePath);
+        await file.CopyToAsync(stream);
+
+        return Results.Created("/image", fileName);
+    }
+
+    return Results.NoContent();
+}).DisableAntiforgery();
 
 
 app.Run();

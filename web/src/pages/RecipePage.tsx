@@ -85,6 +85,7 @@ export const RecipePage = () => {
         {recipe?.methodSteps.map((ingredient) => (
           <Typography>{ingredient}</Typography>
         ))}
+        {recipe.imageUrl && <img src={api.getImageUrl(recipe.imageUrl)} />}
       </Box>
     </>
   );

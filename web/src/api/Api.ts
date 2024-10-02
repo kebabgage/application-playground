@@ -8,6 +8,11 @@ export class Api {
       return "http://localhost:8000";
     }
   }
+
+  getImageUrl(imageName: string): string {
+    return `${this.getHost()}/images/${imageName}`;
+  }
+
   async getRecipes(): Promise<Recipe[]> {
     try {
       const response = await fetch(`${this.getHost()}/recipe`);
@@ -38,6 +43,7 @@ export class Api {
         Username: recipe.username,
         MethodSteps: recipe.methodSteps,
         Ingredients: recipe.ingredients,
+        ImageUrl: recipe.imageUrl,
       }),
       headers: {
         Accept: "*/*",
@@ -46,6 +52,26 @@ export class Api {
     });
 
     return response.json();
+  }
+
+  async postImage(image: any) {
+    const formData = new FormData();
+    formData.append("file", image);
+
+    try {
+      const response = await fetch(`${this.getHost()}/image`, {
+        method: "POST",
+        body: formData,
+        // headers: {
+        //   Accept: "*/*",
+        //   "Content-Type": "multipart/form-data",
+        // },
+      });
+
+      return response.json();
+    } catch (error) {
+      throw new Error("!");
+    }
   }
 
   async deleteRecipe(id: number): Promise<void> {

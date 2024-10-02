@@ -14,4 +14,6 @@ public class Recipe
     public string[]? MethodSteps { get; set; }
     public string[]? Ingredients { get; set; }
 
+    public string ImageUrl { get; set; }
+
 }

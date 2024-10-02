@@ -19,9 +19,14 @@ import { useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 
-const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
-
-const TOTAL_STEPS = 4;
+const steps = [
+  "Title",
+  "Description",
+  "Ingredients",
+  "Method",
+  "Image",
+  "Submitting",
+];
 
 interface FormValues {
   title: string;
@@ -46,14 +51,26 @@ export const AddRecipePage = () => {
     methodSteps: [""],
   });
 
-  const mutation = useMutation({
+  const postImageMutation = useMutation({
     mutationFn: () => {
+      return api.postImage(form.image);
+    },
+    onSuccess: (data) => {
+      console.log("Image created", data);
+      mutation.mutate(data);
+    },
+    mutationKey: ["post", "image"],
+  });
+
+  const mutation = useMutation({
+    mutationFn: (imageUrl: string) => {
       return api.postRecipe({
         title: form.title,
         description: form.description,
         username: cookies["user"].username,
         ingredients: form.ingredients.filter((ingredient) => ingredient !== ""),
         methodSteps: form.methodSteps.filter((ingredient) => ingredient !== ""),
+        imageUrl: imageUrl,
       });
     },
     onSuccess: () => {
@@ -256,6 +273,16 @@ export const AddRecipePage = () => {
             </Button>
           </>
         )}
+        {step === 5 && (
+          <>
+            <Typography>
+              {postImageMutation.isPending ? "Image posting" : "Done"}
+            </Typography>
+            <Typography>
+              {mutation.isPending ? "Recipe posting" : "Done"}
+            </Typography>
+          </>
+        )}
         <Box
           sx={{
             paddingTop: 5,
@@ -276,7 +303,10 @@ export const AddRecipePage = () => {
               Next
             </Button>
           ) : (
-            <Button variant="contained" onClick={() => mutation.mutate()}>
+            <Button
+              variant="contained"
+              onClick={() => postImageMutation.mutate()}
+            >
               Submit
             </Button>
           )}
