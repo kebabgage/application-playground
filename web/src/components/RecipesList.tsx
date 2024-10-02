@@ -22,12 +22,13 @@ export const RecipesList = () => {
   return (
     <Box
       sx={{
-        width: isSmallScreen ? "60%" : "50%",
+        width: isSmallScreen ? "60%" : "70%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignContent: "center",
         gap: 2,
+        paddingBottom: 2,
       }}
     >
       <Box sx={{ display: "flex", justifyContent: "center" }}>

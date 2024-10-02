@@ -10,6 +10,8 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  CircularProgress,
+  LinearProgress,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -18,17 +20,15 @@ import { getApi } from "../api/Api";
 import { useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
+import { RecipeTitleForm } from "../components/recipeForm/TitleInput";
+import { DescriptionInput } from "../components/recipeForm/DescriptionInput";
+import { IngredientsInput } from "../components/recipeForm/IngredientsInput";
+import { MethodInput } from "../components/recipeForm/MethodInput";
+import { ImageInput } from "../components/recipeForm/ImageInput";
 
-const steps = [
-  "Title",
-  "Description",
-  "Ingredients",
-  "Method",
-  "Image",
-  "Submitting",
-];
+const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
 
-interface FormValues {
+export interface FormValues {
   title: string;
   description: string;
   ingredients: string[];
@@ -43,6 +43,9 @@ export const AddRecipePage = () => {
   const api = getApi();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [recipeId, setRecipeId] = useState<number | null>();
+
+  const [submitState, setSubmitState] = useState<number | null>(null);
 
   const [form, setForm] = useImmer<FormValues>({
     title: "",
@@ -57,6 +60,10 @@ export const AddRecipePage = () => {
     },
     onSuccess: (data) => {
       console.log("Image created", data);
+
+      // Make the progress bar do a little thing
+      setTimeout(() => setSubmitState(100), 2);
+
       mutation.mutate(data);
     },
     mutationKey: ["post", "image"],
@@ -73,13 +80,57 @@ export const AddRecipePage = () => {
         imageUrl: imageUrl,
       });
     },
-    onSuccess: () => {
+    onSuccess: (recipe) => {
       queryClient.invalidateQueries({ queryKey: ["recipe"] });
 
-      navigate("/");
+      setTimeout(() => setSubmitState(100), 2);
+
+      setRecipeId(recipe.id ?? undefined);
     },
     mutationKey: ["post", "recipe"],
   });
+
+  if (submitState !== null) {
+    return (
+      <Box
+        width="40%"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+      >
+        {submitState === 100 && (
+          <Box
+            paddingBottom={2}
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+          >
+            <Typography variant="h4">Recipe Uploaded</Typography>
+            <Typography variant="body1">
+              Great work! Everyone can now see your recipe.
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "space-between",
+                justifySelf: "center",
+                paddingTop: 4,
+              }}
+            >
+              <Button onClick={() => navigate("/")}>Home</Button>
+              <Button onClick={() => navigate("recipe?id=" + recipeId)}>
+                View Recipe
+              </Button>
+            </Box>
+          </Box>
+        )}
+        <Box sx={{ width: "100%", mr: 1 }}>
+          <LinearProgress variant="determinate" value={submitState} />
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -105,14 +156,7 @@ export const AddRecipePage = () => {
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
-            // if (isStepOptional(index)) {
-            //   labelProps.optional = (
-            //     <Typography variant="caption">Optional</Typography>
-            //   );
-            // }
-            // if (isStepSkipped(index)) {
-            //   stepProps.completed = false;
-            // }
+
             return (
               <Step key={label} {...stepProps}>
                 <StepLabel {...labelProps}>{label}</StepLabel>
@@ -128,151 +172,24 @@ export const AddRecipePage = () => {
         justifyContent="center"
       >
         {/* The title page  */}
-        {step === 0 && (
-          <>
-            <Typography>Whats your recipe called? </Typography>
-            <TextField
-              value={form.title}
-              placeholder="Yummy little bummy"
-              onChange={(event) => {
-                if (event.target.value === undefined) {
-                  setForm((draft) => {
-                    draft.title = "";
-                  });
-                } else {
-                  setForm((draft) => {
-                    draft.title = event.target.value;
-                  });
-                }
-              }}
-              variant="standard"
-              autoFocus
-            />
-          </>
-        )}
+        {step === 0 && <RecipeTitleForm value={form.title} setForm={setForm} />}
         {/* The description page  */}
         {step === 1 && (
-          <>
-            <Typography>Describe your recipe in a few words</Typography>
-            <TextField
-              placeholder="The worst tasting soup. Passed down from your evil aunt"
-              onChange={(event) =>
-                setForm((draft) => {
-                  draft.description = event.target.value ?? "";
-                })
-              }
-              multiline
-              variant="standard"
-              autoFocus
-            />
-          </>
+          <DescriptionInput
+            value={form.description}
+            setForm={setForm}
+            form={form}
+          />
         )}
         {/* The ingredients page  */}
         {step === 2 && (
-          <>
-            <Typography>What is in your recipe?</Typography>
-            {form.ingredients.map((ingredient, index, array) => {
-              return (
-                <TextField
-                  value={ingredient}
-                  placeholder="50 eggs"
-                  onChange={(event) =>
-                    setForm((draft) => {
-                      draft.ingredients[index] = event.target.value;
-                    })
-                  }
-                  variant="standard"
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter" &&
-                      ingredient !== "" &&
-                      index === array.length - 1
-                    ) {
-                      setForm((draft) => {
-                        draft.ingredients.push("");
-                      });
-                    }
-                  }}
-                  autoFocus={index === array.length - 1}
-                />
-              );
-            })}
-          </>
+          <IngredientsInput values={form.ingredients} setForm={setForm} />
         )}
         {/* The method page  */}
         {step === 3 && (
-          <>
-            <Typography>
-              What steps are involved in making your recipe
-            </Typography>
-            {form.methodSteps.map((step, index, array) => {
-              return (
-                <TextField
-                  value={step}
-                  placeholder="Lightly grill the skin of the bacon"
-                  onChange={(event) =>
-                    setForm((draft) => {
-                      draft.methodSteps[index] = event.target.value;
-                    })
-                  }
-                  variant="standard"
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter" &&
-                      step !== "" &&
-                      index === array.length - 1
-                    ) {
-                      setForm((draft) => {
-                        draft.methodSteps.push("");
-                      });
-                    }
-                  }}
-                  autoFocus={index === array.length - 1}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {index + 1}.
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-              );
-            })}
-          </>
+          <MethodInput values={form.methodSteps} setForm={setForm} />
         )}
-        {step === 4 && (
-          <>
-            {form.image && (
-              <div>
-                {/* Display the selected image */}
-                <img
-                  alt="not found"
-                  width={"250px"}
-                  src={URL.createObjectURL(form.image)}
-                />
-                <br /> <br />
-                {/* Button to remove the selected image */}
-                {/* <button onClick={() => setSelectedImage(null)}>Remove</button> */}
-              </div>
-            )}
-            <Button variant="contained" component="label">
-              Upload File
-              <input
-                type="file"
-                hidden
-                onChange={(event) =>
-                  setForm((draft) => {
-                    if (event.target.files) {
-                      draft.image = event?.target?.files[0] ?? undefined;
-                    }
-                  })
-                }
-              />
-            </Button>
-          </>
-        )}
+        {step === 4 && <ImageInput value={form.image} setForm={setForm} />}
         {step === 5 && (
           <>
             <Typography>
@@ -305,7 +222,19 @@ export const AddRecipePage = () => {
           ) : (
             <Button
               variant="contained"
-              onClick={() => postImageMutation.mutate()}
+              onClick={() => {
+                // Set the loading state
+                setSubmitState(0);
+
+                console.log(form.image);
+
+                if (form.image === undefined) {
+                  mutation.mutate("");
+                } else {
+                  // Make the post image call
+                  postImageMutation.mutate();
+                }
+              }}
             >
               Submit
             </Button>

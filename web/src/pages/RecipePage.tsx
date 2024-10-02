@@ -7,13 +7,14 @@ import {
 } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ProgressCircle from "rsuite/esm/Progress/ProgressCircle";
 import { getApi } from "../api/Api";
 
 export const RecipePage = () => {
   const api = getApi();
   const [search] = useSearchParams(window.location.search);
+  const navigate = useNavigate();
 
   /**
    * The recipe id, derived from the search parameters
@@ -48,6 +49,9 @@ export const RecipePage = () => {
     mutationFn: () => {
       return api.deleteRecipe(id);
     },
+    onSuccess: () => {
+      navigate("/");
+    },
   });
 
   const handleDeleteButtonClick = () => {
@@ -70,7 +74,7 @@ export const RecipePage = () => {
   return (
     <>
       <Box height="100vh">
-        {/* <Button onClick={handleDeleteButtonClick}>Delete</Button> */}
+        <Button onClick={handleDeleteButtonClick}>Delete</Button>
         <Typography variant="h1">{recipe?.title}</Typography>
         <Typography variant="subtitle1">{recipe?.description}</Typography>
         <Typography>Brought to you by {recipe?.username}</Typography>

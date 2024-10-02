@@ -67,3 +67,5 @@ yarn-debug.log*
 yarn-error.log*
 
 filesystem/*
+
+.env

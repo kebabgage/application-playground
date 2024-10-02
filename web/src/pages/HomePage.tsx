@@ -20,8 +20,17 @@ export const HomePage = () => {
   }
 
   return (
-    <>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+    <Box
+      height="100%"
+      sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h2">{country.title}</Typography>
         <img
           height="50px"
@@ -35,6 +44,6 @@ export const HomePage = () => {
 
       {/*<Typography>Hej {cookies["user"].username}</Typography> */}
       <RecipesList />
-    </>
+    </Box>
   );
 };
