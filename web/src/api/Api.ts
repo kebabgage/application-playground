@@ -1,8 +1,11 @@
 import { Recipe } from "../types/Recipe";
 import OpenAI from "openai";
-const openai = new OpenAI({
-  dangerouslyAllowBrowser: true,
-});
+// if (process.env.OPEN_AI_KEY !== undefined){
+//   const openai = new OpenAI({
+//     dangerouslyAllowBrowser: true,
+//     apiKey: process.env.OPEN_AI_KEY,
+//   });
+// }
 
 export class Api {
   getHost(): string {
@@ -111,19 +114,20 @@ export class Api {
   }
 
   async generateDescriptionAI(title: string): Promise<string | null> {
-    console.log("..", title);
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        {
-          role: "user",
-          content: `Write a description with 2 sentences based on my recipe called ${title}`,
-        },
-      ],
-    });
+    // console.log("..", title);
+    // const completion = await openai.chat.completions.create({
+    //   model: "gpt-4o-mini",
+    //   messages: [
+    //     { role: "system", content: "You are a helpful assistant." },
+    //     {
+    //       role: "user",
+    //       content: `Write a description with 2 sentences based on my recipe called ${title}`,
+    //     },
+    //   ],
+    // });
 
-    return completion.choices[0].message.content;
+    // return completion.choices[0].message.content;
+    return "AI NOT ENABLED SORRY";
   }
 }
 
