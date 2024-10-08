@@ -53,7 +53,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 
-ChatClient client = new(model: "gpt-4o", apiKey: Environment.GetEnvironmentVariable("OPEN_AI_KEY"));
+ChatClient client = new(model: "gpt-4o", apiKey: Environment.GetEnvironmentVariable("OPEN_AI_KEY") ?? Configuration.GetSection("OpenAIKey").GetValue<string>("Default"));
 
 var app = builder.Build();
 
@@ -96,6 +96,8 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
+
+app.RegisterUsersEndpoints();
 
 var recipes = app.MapGroup("/recipe");
 
@@ -149,46 +151,6 @@ recipes.MapDelete("/{id}", async (int id, AppDbContext dbContext) =>
     }
 
     return Results.NotFound();
-});
-
-var users = app.MapGroup("/users");
-
-users.MapGet("/", (AppDbContext dbContext) =>
-{
-    return dbContext.Users.OrderBy(r => r.Id).ToList();
-});
-
-users.MapGet("/{id}", async (int id, AppDbContext dbContext) =>
-{
-
-    var user = await dbContext.Users.FindAsync(id);
-
-    if (user is null) return Results.NotFound(id);
-
-    return Results.Ok(user);
-});
-
-users.MapPost("/", async (User user, AppDbContext dbContext) =>
-{
-    // Check if we already have someone with this user 
-    var userExists = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-
-    if (userExists == null)
-    {
-        user.LastLoggedIn = DateTime.UtcNow;
-        dbContext.Users.Add(user);
-        await dbContext.SaveChangesAsync();
-
-        return Results.Created($"/users/{user.Id}", user);
-    }
-    else
-    {
-        // Just incase they login and change their username
-        userExists.UserName = user.UserName;
-        userExists.LastLoggedIn = DateTime.UtcNow;
-        await dbContext.SaveChangesAsync();
-        return Results.Created($"/users/{user.Id}", userExists);
-    }
 });
 
 app.UseStaticFiles(new StaticFileOptions
