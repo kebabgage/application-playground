@@ -3,6 +3,7 @@ import {
   Button,
   Fade,
   InputAdornment,
+  Modal,
   TextField,
   Typography,
 } from "@mui/material";
@@ -11,7 +12,7 @@ import { getApi } from "../../api/Api";
 import ReactEmojis from "@souhaildev/reactemojis";
 
 import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IconButton } from "rsuite";
 
 export const DescriptionInput = ({
@@ -21,56 +22,50 @@ export const DescriptionInput = ({
 }: RecipeInputProps) => {
   const queryClient = useQueryClient();
   const api = getApi();
-  const [aiQueryEnabled, setAiQueryEnabled] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
 
-  const {
-    data: generatedDescription,
-    isFetched,
-    isPending,
-  } = useQuery({
-    queryFn: () => {
-      console.log("Running query");
-      if (aiQueryEnabled === false || form?.title === undefined) {
+  const mutation = useMutation({
+    mutationFn: () => {
+      if (form?.title === undefined) {
         throw new Error("Not enabled but still trying to query ");
       }
 
       return api.generateDescriptionAI(form.title);
     },
-    queryKey: ["ai", "generateDescription", form?.title],
-    enabled: aiQueryEnabled,
-    staleTime: Infinity,
+    mutationKey: ["ai", "generateDescription", form?.title],
+    onSuccess: (description) => {
+      console.log(description);
+      if (description !== null) {
+        setForm((draft) => {
+          draft.description = description;
+        });
+
+        // Stop the animation
+        setShowAnimation(false);
+      }
+    },
   });
-
-  useEffect(() => {
-    if (generatedDescription !== undefined && generatedDescription !== null) {
-      setForm((draft) => {
-        draft.description = generatedDescription;
-      });
-
-      // Stop the animation
-      setShowAnimation(false);
-    }
-  }, [generatedDescription, setForm]);
 
   return (
     <>
-      <Fade in={showAnimation} timeout={3000}>
-        <Box
-          sx={{
-            display: "flex",
-            position: "absolute",
-            width: "50%",
-            height: "50%",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            alt="Doing magic"
-            src={"https://c.tenor.com/z5JHNdc3h5IAAAAC/tenor.gif"}
-          />
-        </Box>
-      </Fade>
+      {/* <Fade in={showAnimation} timeout={3000}> */}
+      <Modal open={showAnimation}>
+        {/* <Box
+            sx={{
+              display: "flex",
+              position: "absolute",
+              width: "50%",
+              height: "50%",
+              justifyContent: "center",
+            }}
+          > */}
+        <img
+          alt="Doing magic"
+          src={"https://c.tenor.com/z5JHNdc3h5IAAAAC/tenor.gif"}
+        />
+        {/* </Box> */}
+      </Modal>
+      {/* </Fade> */}
 
       {form?.title && (
         <Box display="flex" width="100%" justifyContent="flex-end">
@@ -80,7 +75,8 @@ export const DescriptionInput = ({
               queryClient.invalidateQueries({
                 queryKey: ["ai", "generateDescription", form?.title],
               });
-              setAiQueryEnabled(true);
+              // setAiQueryEnabled(true);
+              mutation.mutate();
             }}
           >
             ✨Generate✨

@@ -1,20 +1,97 @@
 import {
   Box,
   Button,
-  Typography,
-  CircularProgress,
   Checkbox,
+  CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+  styled,
+  Typography,
 } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import ProgressCircle from "rsuite/esm/Progress/ProgressCircle";
 import { getApi } from "../api/Api";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
+import { MoreHoriz } from "@mui/icons-material";
+
+const RecipeHeading = styled(Typography)({
+  borderBottom: "solid green",
+  width: "55vw",
+  paddingX: 3,
+  paddingBottom: 1,
+});
+
+interface IngredientItemProp {
+  ingredient: string;
+}
+
+const IngredientItem = ({ ingredient }: IngredientItemProp) => {
+  const [checked, setChecked] = useState(false);
+  return (
+    <Box
+      display="flex"
+      flexDirection="row"
+      alignItems="center"
+      onClick={() => setChecked(!checked)}
+      sx={{ cursor: "pointer" }}
+    >
+      <Checkbox size="small" checked={checked} />
+      <Box>
+        <Typography
+          sx={{ textDecoration: checked ? "line-through" : "default" }}
+        >
+          {ingredient}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
+interface MethodStepProps {
+  step: string;
+  index: number;
+}
+
+const MethodStep = ({ step, index }: MethodStepProps) => {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <Box
+      display="flex"
+      flexDirection="row"
+      alignItems="center"
+      paddingTop={1}
+      onClick={() => {
+        console.log("Goog ");
+        setChecked(!checked);
+      }}
+      sx={{ cursor: "pointer" }}
+    >
+      <Typography
+        style={{
+          fontWeight: "bold",
+          alignSelf: "flex-start",
+          paddingRight: 8,
+        }}
+      >
+        {index + 1}.
+      </Typography>
+
+      <Typography sx={{ textDecoration: checked ? "line-through" : "default" }}>
+        {" " + step}
+      </Typography>
+    </Box>
+  );
+};
 
 export const RecipePage = () => {
   const api = getApi();
   const [search] = useSearchParams(window.location.search);
   const navigate = useNavigate();
+  const isSmallScreen = useIsSmallScreen();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   /**
    * The recipe id, derived from the search parameters
@@ -54,6 +131,14 @@ export const RecipePage = () => {
     },
   });
 
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = async (option: "Delete" | "Edit") => {
+    setAnchorEl(null);
+  };
+
   const handleDeleteButtonClick = () => {
     deleteMutation.mutate();
   };
@@ -73,23 +158,109 @@ export const RecipePage = () => {
 
   return (
     <>
-      <Box height="100vh">
-        <Button onClick={handleDeleteButtonClick}>Delete</Button>
-        <Typography variant="h1">{recipe?.title}</Typography>
-        <Typography variant="subtitle1">{recipe?.description}</Typography>
-        <Typography>Brought to you by {recipe?.username}</Typography>
-        <Typography variant="h3">Ingredients</Typography>
-        {recipe?.ingredients.map((ingredient) => (
-          <Box display="flex" flexDirection="row" alignItems="center">
-            <Checkbox size="small" />
-            <Typography>{ingredient}</Typography>
+      <Box
+        height="100%"
+        width="100%"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignContent: "center",
+          // flexWrap: "wrap",
+          // padding: 3,
+          marginTop: 4,
+        }}
+      >
+        <Box
+          display="flex"
+          flexDirection="row"
+          paddingX={3}
+          paddingBottom={1}
+          // width="75%"
+        >
+          <RecipeHeading width="75%" flexGrow={2} variant="h4">
+            {recipe?.title}
+          </RecipeHeading>
+          <IconButton
+            onClick={handleMenu}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+            }}
+          >
+            <MoreHoriz />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "center",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={() => handleClose("Edit")}>Edit Recipe</MenuItem>{" "}
+            <MenuItem onClick={() => handleClose("Delete")}>
+              Delete Recipe
+            </MenuItem>
+          </Menu>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection={isSmallScreen ? "column" : "row"}
+          paddingX={3}
+          gap={2}
+        >
+          <Box
+            sx={{
+              width: isSmallScreen ? "100%" : "60%",
+            }}
+          >
+            <Box sx={{ border: "solid green", padding: 2 }}>
+              <Typography variant="subtitle1">{recipe?.description}</Typography>
+              <Typography sx={{ paddingTop: 3 }}>
+                Brought to you by{" "}
+                {recipe?.username === "" ? recipe?.username : "Unknown"}
+              </Typography>
+            </Box>
           </Box>
-        ))}
-        <Typography variant="h3">Method</Typography>
-        {recipe?.methodSteps.map((ingredient) => (
-          <Typography>{ingredient}</Typography>
-        ))}
-        {recipe.imageUrl && <img src={api.getImageUrl(recipe.imageUrl)} />}
+          <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
+            <img
+              alt={recipe.title + "image"}
+              src={api.getImageUrl(recipe.imageUrl)}
+              // height="90%"
+              width="100%"
+              height="100%"
+              style={{ borderRadius: "5px" }}
+            />
+          </Box>
+        </Box>
+
+        <Box
+          sx={{ display: "flex", flexDirection: "column", paddingX: 3, gap: 4 }}
+        >
+          <Box>
+            <RecipeHeading sx={{ borderBottom: "solid green" }} variant="h3">
+              Ingredients
+            </RecipeHeading>
+            {recipe?.ingredients.map((ingredient, index) => (
+              <IngredientItem ingredient={ingredient} />
+            ))}
+          </Box>
+          <Box>
+            <RecipeHeading variant="h3">Method</RecipeHeading>
+            {recipe?.methodSteps.map((step, index) => (
+              <MethodStep step={step} index={index} />
+            ))}
+          </Box>
+        </Box>
       </Box>
     </>
   );

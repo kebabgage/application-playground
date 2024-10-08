@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using OpenAI.Chat;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +28,6 @@ var StoragePath = Environment.GetEnvironmentVariable("DOCKER") switch
     "true" => Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"../files")),
     _ => Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\filesystem\")),
 };
-
 
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString(ConnectionString)));
@@ -50,8 +53,9 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 
+ChatClient client = new(model: "gpt-4o", apiKey: Environment.GetEnvironmentVariable("OPEN_AI_KEY"));
+
 var app = builder.Build();
-Console.WriteLine(StoragePath);
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -118,6 +122,7 @@ recipes.MapPut("/{id}", async (int id, Recipe inputRecipe, AppDbContext db) =>
 
     recipe.Title = inputRecipe.Title;
     recipe.Description = inputRecipe.Description;
+    recipe.ImageUrl = inputRecipe.ImageUrl;
 
     await db.SaveChangesAsync();
 
@@ -193,11 +198,12 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images"
 });
 
-app.MapPost("/image", async (IFormFile file) =>
+app.MapPost("/image", async (IFormFile file, string originalFileName) =>
 {
     if (file.Length > 0)
     {
-        var fileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(file.FileName));
+        Console.WriteLine("Uploading file" + file.Name + "extension" + Path.GetExtension(file.FileName));
+        var fileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(originalFileName));
         var filePath = Path.Combine(StoragePath, fileName);
         // filePath = Path.ChangeExtension(filePath, Path.GetExtension(file.FileName));
 
@@ -209,6 +215,23 @@ app.MapPost("/image", async (IFormFile file) =>
 
     return Results.NoContent();
 }).DisableAntiforgery();
+
+app.MapPost("/ai/description", async (string title) =>
+{
+    ChatCompletion completion = await client.CompleteChatAsync($"Give me a short description for my recipe called {title}. Only return me the description");
+
+    Console.WriteLine($"[ASSISTANT]: {completion.Content[0].Text}");
+
+
+
+    //     var responseOnly = completion.Content[0].Text.ToString().Split("\n\n")[1];
+
+
+    // Console.WriteLine($"Splitted => {responseOnly}");
+
+
+    return Results.Ok(completion.Content[0].Text);
+});
 
 
 app.Run();

@@ -2,11 +2,11 @@ import { useCallback, useMemo } from "react";
 
 // Download the icons from here -> https://www.flaticon.com/packs/countrys-flags
 const titles = [
-  { title: "The Family Cookbook", src: "united-kingdom.png" },
-  { title: "The F**** C***book", src: "australia.png" },
-  { title: "Familiens Kogebog", src: "denmark.png" },
-  { title: "Das Familienkochbuch", src: "germany.png" },
-  { title: "Il libro di cucina di famiglia", src: "italy.png" },
+  { title: "The Family Cookbook 🇬🇧", src: "united-kingdom.png" },
+  { title: "The F***** C***book 🇦🇺", src: "australia.png" },
+  { title: "Familiens Kogebog 🇩🇰", src: "denmark.png" },
+  { title: "Das Familienkochbuch 🇩🇪", src: "germany.png" },
+  { title: "Il libro di cucina di famiglia 🇮🇹", src: "italy.png" },
 ];
 
 const getRandomCountry = () => {

@@ -11,10 +11,6 @@ export const HomePage = () => {
   const [cookies] = useCookies(["user"]);
   const [country, setCountry] = useCountry();
 
-  useEffect(() => {
-    setCountry();
-  }, []);
-
   if (cookies["user"] === undefined) {
     return <Navigate to={"/login"} />;
   }
@@ -24,25 +20,6 @@ export const HomePage = () => {
       height="100%"
       sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h2">{country.title}</Typography>
-        <img
-          height="50px"
-          width="50px"
-          title="Flag"
-          style={{ marginLeft: "20px" }}
-          alt="Flag"
-          src={process.env.PUBLIC_URL + "/flags/" + country.src}
-        />
-      </Box>
-
-      {/*<Typography>Hej {cookies["user"].username}</Typography> */}
       <RecipesList />
     </Box>
   );

@@ -54,6 +54,8 @@ export const AddRecipePage = () => {
     methodSteps: [""],
   });
 
+  console.log(form);
+
   const postImageMutation = useMutation({
     mutationFn: () => {
       return api.postImage(form.image);
@@ -119,7 +121,7 @@ export const AddRecipePage = () => {
               }}
             >
               <Button onClick={() => navigate("/")}>Home</Button>
-              <Button onClick={() => navigate("recipe?id=" + recipeId)}>
+              <Button onClick={() => navigate("/recipe?id=" + recipeId)}>
                 View Recipe
               </Button>
             </Box>
@@ -166,7 +168,7 @@ export const AddRecipePage = () => {
         </Stepper>
       </Box>
       <Box
-        width="40%"
+        width={isSmallScreen ? "90%" : "40%"}
         display="flex"
         flexDirection="column"
         justifyContent="center"
@@ -225,8 +227,6 @@ export const AddRecipePage = () => {
               onClick={() => {
                 // Set the loading state
                 setSubmitState(0);
-
-                console.log(form.image);
 
                 if (form.image === undefined) {
                   mutation.mutate("");

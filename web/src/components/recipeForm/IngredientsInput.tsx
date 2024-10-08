@@ -17,6 +17,8 @@ export const IngredientsInput = ({
       {values.map((ingredient, index, array) => {
         return (
           <TextField
+            multiline
+            key={index}
             value={ingredient}
             placeholder="50 eggs"
             onChange={(event) =>
@@ -34,6 +36,8 @@ export const IngredientsInput = ({
                 setForm((draft) => {
                   draft.ingredients.push("");
                 });
+
+                event.preventDefault();
               }
             }}
             autoFocus={index === array.length - 1}

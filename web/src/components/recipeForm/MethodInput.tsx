@@ -1,4 +1,4 @@
-import { InputAdornment, TextField, Typography } from "@mui/material";
+import { Box, InputAdornment, TextField, Typography } from "@mui/material";
 import { FormValues } from "../../pages/AddRecipePage";
 import { DraftFunction } from "use-immer";
 
@@ -16,6 +16,8 @@ export const MethodInput = ({ values, setForm }: IngredientsInputProps) => {
       {values.map((step, index, array) => {
         return (
           <TextField
+            key={index}
+            multiline
             value={step}
             placeholder="Lightly grill the skin of the bacon"
             onChange={(event) =>
@@ -33,6 +35,7 @@ export const MethodInput = ({ values, setForm }: IngredientsInputProps) => {
                 setForm((draft) => {
                   draft.methodSteps.push("");
                 });
+                event.preventDefault();
               }
             }}
             autoFocus={index === array.length - 1}

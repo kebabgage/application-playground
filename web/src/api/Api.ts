@@ -62,21 +62,28 @@ export class Api {
   }
 
   async postImage(image: any) {
+    console.log("image", image);
     const formData = new FormData();
     formData.append("file", image);
 
+    console.log("postImage > after form data");
+
     try {
-      const response = await fetch(`${this.getHost()}/image`, {
-        method: "POST",
-        body: formData,
-        // headers: {
-        //   Accept: "*/*",
-        //   "Content-Type": "multipart/form-data",
-        // },
-      });
+      const response = await fetch(
+        `${this.getHost()}/image?originalFileName=${image.name}`,
+        {
+          method: "POST",
+          body: formData,
+          // headers: {
+          //   Accept: "*/*",
+          //   "Content-Type": "multipart/form-data",
+          // },
+        }
+      );
 
       return response.json();
     } catch (error) {
+      console.log("error >", error);
       throw new Error("!");
     }
   }
@@ -94,40 +101,47 @@ export class Api {
   }
 
   async postUser(user: { Username: string; Email: string }) {
-    try {
-      const response = await fetch(`${this.getHost()}/user`, {
-        method: "POST",
-        body: JSON.stringify({
-          Username: user.Username,
-          Email: user.Email,
-        }),
-        headers: {
-          Accept: "*/*",
-          "Content-Type": "application/json",
-        },
-      });
-
-      return response.json();
-    } catch (error) {
-      throw new Error("!!");
-    }
+    // try {
+    //   const response = await fetch(`${this.getHost()}/users`, {
+    //     method: "POST",
+    //     body: JSON.stringify({
+    //       Username: user.Username,
+    //       Email: user.Email,
+    //     }),
+    //     headers: {
+    //       Accept: "*/*",
+    //       "Content-Type": "application/json",
+    //     },
+    //   });
+    //   return response.json();
+    // } catch (error) {
+    //   throw new Error("!!");
+    // }
   }
 
   async generateDescriptionAI(title: string): Promise<string | null> {
-    // console.log("..", title);
-    // const completion = await openai.chat.completions.create({
-    //   model: "gpt-4o-mini",
-    //   messages: [
-    //     { role: "system", content: "You are a helpful assistant." },
-    //     {
-    //       role: "user",
-    //       content: `Write a description with 2 sentences based on my recipe called ${title}`,
-    //     },
-    //   ],
-    // });
+    try {
+      const response = await fetch(
+        `${this.getHost()}/ai/description?title=${title}`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    // return completion.choices[0].message.content;
-    return "AI NOT ENABLED SORRY";
+      return response.json();
+    } catch (error) {
+      throw new Error("Error generating description" + error);
+    }
+  }
+
+  async logout() {
+    try {
+      const response = await fetch(`${this.getHost()}/`);
+    } catch (error) {}
   }
 }
 
