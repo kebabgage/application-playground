@@ -13,7 +13,6 @@ import ReactEmojis from "@souhaildev/reactemojis";
 
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IconButton } from "rsuite";
 
 export const DescriptionInput = ({
   value,
@@ -34,7 +33,6 @@ export const DescriptionInput = ({
     },
     mutationKey: ["ai", "generateDescription", form?.title],
     onSuccess: (description) => {
-      console.log(description);
       if (description !== null) {
         setForm((draft) => {
           draft.description = description;

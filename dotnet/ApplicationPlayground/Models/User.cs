@@ -9,4 +9,6 @@ public class User
 
     public string? Email { get; set; }
     public DateTime LastLoggedIn { get; set; }
+
+    public string? ProfileImage { get; set; }
 }

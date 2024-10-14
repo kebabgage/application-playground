@@ -1,6 +1,7 @@
-import { Avatar, Box, Card, Typography, useTheme } from "@mui/material";
+import { Box, Card, Typography, useTheme } from "@mui/material";
 import { Recipe } from "../types/Recipe";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
+import { Avatar } from "./Avatar";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -44,6 +45,8 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
   const theme = useTheme();
   const isSmallScreen = useIsSmallScreen();
 
+  // console.log(recipe);
+
   return (
     <Card
       onClick={onClick}
@@ -64,7 +67,7 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
           }}
         >
           <Typography variant="h6">{recipe.title}</Typography>
-          {recipe.username !== undefined && recipe.username !== "" && (
+          {recipe.user !== undefined && (
             <Box
               sx={{
                 display: "flex",
@@ -72,7 +75,7 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
                 alignItems: "center",
               }}
             >
-              <Avatar {...stringAvatar(recipe.username)} />
+              <Avatar user={recipe.user} />
               <Typography>{recipe.username}</Typography>
             </Box>
           )}

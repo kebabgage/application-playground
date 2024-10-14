@@ -1,30 +1,24 @@
 import {
   Box,
   Button,
-  Input,
-  InputAdornment,
+  LinearProgress,
   Step,
   StepLabel,
   Stepper,
-  TextField,
   Typography,
-  useTheme,
-  useMediaQuery,
-  CircularProgress,
-  LinearProgress,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useCookies } from "react-cookie";
-import { getApi } from "../api/Api";
 import { useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
-import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
-import { RecipeTitleForm } from "../components/recipeForm/TitleInput";
+import { getApi } from "../api/Api";
 import { DescriptionInput } from "../components/recipeForm/DescriptionInput";
+import { ImageInput } from "../components/recipeForm/ImageInput";
 import { IngredientsInput } from "../components/recipeForm/IngredientsInput";
 import { MethodInput } from "../components/recipeForm/MethodInput";
-import { ImageInput } from "../components/recipeForm/ImageInput";
+import { RecipeTitleForm } from "../components/recipeForm/TitleInput";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
+import { useCurrentUser } from "../hooks/useUser";
 
 const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
 
@@ -38,7 +32,8 @@ export interface FormValues {
 
 export const AddRecipePage = () => {
   const isSmallScreen = useIsSmallScreen();
-  const [cookies] = useCookies(["user"]);
+  const [user, setUser] = useCurrentUser();
+
   const queryClient = useQueryClient();
   const api = getApi();
   const navigate = useNavigate();
@@ -54,15 +49,17 @@ export const AddRecipePage = () => {
     methodSteps: [""],
   });
 
-  console.log(form);
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
 
   const postImageMutation = useMutation({
     mutationFn: () => {
       return api.postImage(form.image);
     },
     onSuccess: (data) => {
-      console.log("Image created", data);
-
       // Make the progress bar do a little thing
       setTimeout(() => setSubmitState(100), 2);
 
@@ -73,13 +70,17 @@ export const AddRecipePage = () => {
 
   const mutation = useMutation({
     mutationFn: (imageUrl: string) => {
+      if (user === null) {
+        throw new Error("User needs to be not null");
+      }
       return api.postRecipe({
         title: form.title,
         description: form.description,
-        username: cookies["user"].username,
+        username: user?.userName,
         ingredients: form.ingredients.filter((ingredient) => ingredient !== ""),
         methodSteps: form.methodSteps.filter((ingredient) => ingredient !== ""),
         imageUrl: imageUrl,
+        user: user,
       });
     },
     onSuccess: (recipe) => {
@@ -95,6 +96,7 @@ export const AddRecipePage = () => {
   if (submitState !== null) {
     return (
       <Box
+        height="100%"
         width="40%"
         display="flex"
         flexDirection="column"
@@ -108,7 +110,7 @@ export const AddRecipePage = () => {
             justifyContent="center"
           >
             <Typography variant="h4">Recipe Uploaded</Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" paddingBottom={2}>
               Great work! Everyone can now see your recipe.
             </Typography>
             <Box
@@ -135,21 +137,36 @@ export const AddRecipePage = () => {
   }
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        // top: 50,
+        // width: "100%",
+        left: 0,
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
-          position: "absolute",
-          top: 50,
-          width: "100%",
-          left: 0,
+          position: "relative",
+          top: 20,
+          // width: "100%",
+          // left: 0,
           justifyContent: "center",
+          alignSelf: "flex-start",
         }}
       >
         <Stepper
-          sx={{
-            width: isSmallScreen ? "default" : "60%",
-          }}
+          sx={
+            {
+              // width: isSmallScreen ? "default" : "60%",
+            }
+          }
           activeStep={step}
           alternativeLabel
         >
@@ -160,7 +177,7 @@ export const AddRecipePage = () => {
             } = {};
 
             return (
-              <Step key={label} {...stepProps}>
+              <Step sx={{ width: "65px" }} key={label} {...stepProps}>
                 <StepLabel {...labelProps}>{label}</StepLabel>
               </Step>
             );
@@ -172,6 +189,7 @@ export const AddRecipePage = () => {
         display="flex"
         flexDirection="column"
         justifyContent="center"
+        flexGrow={1}
       >
         {/* The title page  */}
         {step === 0 && <RecipeTitleForm value={form.title} setForm={setForm} />}
@@ -241,6 +259,6 @@ export const AddRecipePage = () => {
           )}
         </Box>
       </Box>
-    </>
+    </Box>
   );
 };

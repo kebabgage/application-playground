@@ -9,7 +9,7 @@ public class Recipe
 
     public string Description { get; set; }
 
-    public string? Username { get; set; }
+    public User User { get; set; }
 
     public string[]? MethodSteps { get; set; }
     public string[]? Ingredients { get; set; }

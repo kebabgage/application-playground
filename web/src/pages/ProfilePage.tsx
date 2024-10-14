@@ -1,29 +1,33 @@
-import { Box, Button, Typography } from "@mui/material";
-import { useCookies } from "react-cookie";
-import { Navigate } from "react-router-dom";
-import { Avatar, stringToColor } from "../components/Avatar";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import { CameraAlt } from "@mui/icons-material";
-import { useMutation } from "@tanstack/react-query";
-import { getApi } from "../api/Api";
-import { useState } from "react";
+import { Box, Button, Typography } from "@mui/material";
 import imageCompression from "browser-image-compression";
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { getApi } from "../api/Api";
+import { stringToColor } from "../components/Avatar";
+import { useCurrentUser } from "../hooks/useUser";
+import { LoadingButton } from "@mui/lab";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const ProfilePage = () => {
-  const [cookies, setCookies] = useCookies(["user"]);
+  const [user, setUser] = useCurrentUser();
+  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+
   const api = getApi();
   const [image, setImage] = useState<Blob>();
   // const [image, setImage] = useState<Blob>();
 
   const onChange = async (image: File) => {
-    console.log("compressing hopefully");
+    setLoading(true);
+    // console.log("compressing hopefully");
 
-    console.log(image.name);
+    // console.log(image.name);
 
     // const imageFile = event.target.files[0];
-    console.log("originalFile instanceof Blob", image instanceof Blob); // true
-    console.log(`originalFile size ${image.size / 1024 / 1024} MB`);
+    // console.log("originalFile instanceof Blob", image instanceof Blob); // true
+    // console.log(`originalFile size ${image.size / 1024 / 1024} MB`);
 
     const options = {
       maxSizeMB: 1,
@@ -34,55 +38,81 @@ export const ProfilePage = () => {
 
     try {
       const compressedFile = await imageCompression(image, options);
-      console.log(
-        "compressedFile instanceof Blob",
-        compressedFile instanceof Blob
-      ); // true
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      ); // smaller than maxSizeMB
+      // console.log(
+      //   "compressedFile instanceof Blob",
+      //   compressedFile instanceof Blob
+      // ); // true
+      // console.log(
+      //   `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+      // ); // smaller than maxSizeMB
 
-      console.log(compressedFile.name);
-      console.log(compressedFile);
+      // console.log(compressedFile.name);
+      // console.log(compressedFile);
 
       setImage(compressedFile);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
 
     let imageName;
     try {
       imageName = await api.postImage(image);
-      console.log(imageName);
+      // console.log(imageName);
     } catch (error) {
-      console.log("Error when trying to save image", error);
+      console.error("Error when trying to save image", error);
     }
 
     // TODO: Send a real API
     try {
-      setCookies("user", { ...cookies.user, img: imageName });
-    } catch (error) {}
+      if (user !== null) {
+        setUser({
+          userName: user?.userName,
+          email: user.email,
+          profileImage: imageName,
+        });
+
+        console.log(imageName);
+
+        await api.postUser({ ...user, profileImage: imageName });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    // It is all done
+    setLoading(false);
+
+    queryClient.invalidateQueries({ queryKey: ["user", "recipe"] });
   };
 
   // const mutation = useMutation({ mutationFn: () => api.postImage() });
 
-  if (cookies["user"] === undefined) {
+  if (user === null) {
     return <Navigate to={"/login"} />;
   }
 
-  console.log(cookies["user"]);
-
   return (
-    <Box height="100%" margin="5%">
-      <Typography variant="h4" sx={{ paddingBottom: 2 }}>
-        Hi {cookies["user"].username}
+    <Box
+      height="100%"
+      margin="5%"
+      display="flex"
+      flexDirection="column"
+      alignContent="center"
+      flexWrap="wrap"
+    >
+      <Typography
+        variant="h4"
+        sx={{ paddingBottom: 2 }}
+        justifyContent="center"
+      >
+        Hi {user.userName}
       </Typography>
-      {cookies["user"].img === undefined ? (
+      {user.profileImage === undefined ? (
         <AccountCircle
           sx={{
             height: "250px",
             width: "250px",
-            fill: stringToColor(cookies.user.username),
+            fill: stringToColor(user.userName),
           }}
         />
       ) : (
@@ -104,15 +134,17 @@ export const ProfilePage = () => {
               textAlign: "center",
               objectFit: "cover",
             }}
-            alt={cookies["user"].username + "'s-username"}
-            src={api.getImageUrl(cookies["user"].img)}
+            alt={user.userName + "'s-username"}
+            src={user.profileImage ? api.getImageUrl(user.profileImage) : ""}
           />
         </Box>
       )}
       <Box sx={{ display: "flex", justifyContent: "center", paddingTop: 2 }}>
-        <Button
+        <LoadingButton
+          loading={loading}
           variant="contained"
           endIcon={<CameraAltIcon />}
+          // onClick={() => setLoading(true)}
           component="label"
         >
           Change Profile Picture
@@ -125,7 +157,8 @@ export const ProfilePage = () => {
               }
             }}
           />
-        </Button>
+        </LoadingButton>
+        {/* )} */}
       </Box>
     </Box>
   );

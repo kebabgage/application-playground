@@ -1,3 +1,5 @@
+import { responsiveFontSizes } from "@mui/material";
+import { User } from "../hooks/useUser";
 import { Recipe } from "../types/Recipe";
 import OpenAI from "openai";
 // if (process.env.OPEN_AI_KEY !== undefined){
@@ -51,6 +53,7 @@ export class Api {
         MethodSteps: recipe.methodSteps,
         Ingredients: recipe.ingredients,
         ImageUrl: recipe.imageUrl,
+        User: recipe.user,
       }),
       headers: {
         Accept: "*/*",
@@ -62,15 +65,12 @@ export class Api {
   }
 
   async postImage(image: any) {
-    console.log("image", image);
     const formData = new FormData();
     formData.append("file", image);
 
-    console.log("postImage > after form data");
-
     try {
       const response = await fetch(
-        `${this.getHost()}/image?originalFileName=${image.name}`,
+        `${this.getHost()}/images?originalFileName=${image.name}`,
         {
           method: "POST",
           body: formData,
@@ -83,7 +83,6 @@ export class Api {
 
       return response.json();
     } catch (error) {
-      console.log("error >", error);
       throw new Error("!");
     }
   }
@@ -100,23 +99,33 @@ export class Api {
     }
   }
 
-  async postUser(user: { Username: string; Email: string }) {
-    // try {
-    //   const response = await fetch(`${this.getHost()}/users`, {
-    //     method: "POST",
-    //     body: JSON.stringify({
-    //       Username: user.Username,
-    //       Email: user.Email,
-    //     }),
-    //     headers: {
-    //       Accept: "*/*",
-    //       "Content-Type": "application/json",
-    //     },
-    //   });
-    //   return response.json();
-    // } catch (error) {
-    //   throw new Error("!!");
-    // }
+  async postUser(user: User) {
+    try {
+      const response = await fetch(`${this.getHost()}/users`, {
+        method: "POST",
+        body: JSON.stringify({
+          Username: user.userName,
+          Email: user.email,
+          ProfileImage: user.profileImage,
+        }),
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      });
+      return response.json();
+    } catch (error) {
+      throw new Error("!!");
+    }
+  }
+
+  async getUser(email: string): Promise<User> {
+    try {
+      const response = await fetch(`${this.getHost()}/users/email=${email}`);
+      return response.json();
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
   }
 
   async generateDescriptionAI(title: string): Promise<string | null> {

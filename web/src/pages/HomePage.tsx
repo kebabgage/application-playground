@@ -1,23 +1,20 @@
-import { Box, Typography } from "@mui/material";
-import { RecipesList } from "../components/RecipesList";
-import { useCookies } from "react-cookie";
+import { Box } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
+import { RecipesList } from "../components/RecipesList";
 import { useCountry } from "../hooks/useCountry";
-import { useEffect } from "react";
-// import {} from "../../node_modules/svg-country-flags/png100px/";
+import { useCurrentUser } from "../hooks/useUser";
 
 export const HomePage = () => {
-  const navigate = useNavigate();
-  const [cookies] = useCookies(["user"]);
-  const [country, setCountry] = useCountry();
+  const [user] = useCurrentUser();
 
-  if (cookies["user"] === undefined) {
+  if (user === null) {
     return <Navigate to={"/login"} />;
   }
 
   return (
     <Box
       height="100%"
+      width="100%"
       sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <RecipesList />

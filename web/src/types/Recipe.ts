@@ -1,3 +1,5 @@
+import { User } from "../hooks/useUser";
+
 export interface Recipe {
   id?: number;
   title: string;
@@ -6,4 +8,5 @@ export interface Recipe {
   ingredients: string[];
   methodSteps: string[];
   imageUrl: string;
+  user: User;
 }

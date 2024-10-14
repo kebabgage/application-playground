@@ -10,13 +10,9 @@ interface ImageInputProps {
 
 export const ImageInput = ({ value, setForm }: ImageInputProps) => {
   const onChange = async (image: File) => {
-    console.log("compressing hopefully");
-
-    console.log(image.name);
-
     // const imageFile = event.target.files[0];
-    console.log("originalFile instanceof Blob", image instanceof Blob); // true
-    console.log(`originalFile size ${image.size / 1024 / 1024} MB`);
+    // console.log("originalFile instanceof Blob", image instanceof Blob); // true
+    // console.log(`originalFile size ${image.size / 1024 / 1024} MB`);
 
     const options = {
       maxSizeMB: 1,
@@ -27,16 +23,16 @@ export const ImageInput = ({ value, setForm }: ImageInputProps) => {
 
     try {
       const compressedFile = await imageCompression(image, options);
-      console.log(
-        "compressedFile instanceof Blob",
-        compressedFile instanceof Blob
-      ); // true
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      ); // smaller than maxSizeMB
+      // console.log(
+      //   "compressedFile instanceof Blob",
+      //   compressedFile instanceof Blob
+      // ); // true
+      // console.log(
+      //   `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+      // ); // smaller than maxSizeMB
 
-      console.log(compressedFile.name);
-      console.log(compressedFile);
+      // console.log(compressedFile.name);
+      // console.log(compressedFile);
 
       setForm((draft) => {
         if (compressedFile) {
@@ -44,7 +40,8 @@ export const ImageInput = ({ value, setForm }: ImageInputProps) => {
         }
       });
     } catch (error) {
-      console.log(error);
+      throw new Error("Error uploading image");
+      // console.log(error);
     }
   };
 
@@ -79,7 +76,6 @@ export const ImageInput = ({ value, setForm }: ImageInputProps) => {
           type="file"
           hidden
           onChange={(event) => {
-            console.log("..", event?.target?.files?.[0]);
             if (event.target.files && event.target.files[0]) {
               onChange(event.target.files[0]);
             }

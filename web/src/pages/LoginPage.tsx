@@ -1,37 +1,69 @@
-import { Box, Button, TextField } from "@mui/material";
-import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
+import { Alert, Box, Button, TextField } from "@mui/material";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
+import { User, useCurrentUser } from "../hooks/useUser";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { getApi } from "../api/Api";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const api = getApi();
 
-  const [cookies, setCookies] = useCookies(["user"]);
-  const [form, setForm] = useImmer({
-    username: "",
+  const [user, setUser] = useCurrentUser();
+  const [form, setForm] = useImmer<User>({
+    userName: "",
     email: "",
   });
 
-  const handleSubmit = () => {
-    setCookies("user", form, { path: "/" });
+  const [emailValid, setEmailValid] = useState(true);
 
-    navigate("/");
+  const mutation = useMutation({
+    mutationFn: () => {
+      if (user === null) {
+        throw new Error("User cannot be null here ");
+      }
+
+      return api.postUser(user);
+    },
+    onSuccess: (response) => {
+      navigate("/");
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (form.email === "") {
+      setEmailValid(false);
+      return;
+    }
+
+    // Log with the api that the user logged in
+    mutation.mutate();
+
+    setUser(form);
+
+    // navigate("/");
   };
+
+  if (user !== null) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <>
       <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
         <TextField
           label="Username"
-          value={form.username}
+          value={form.userName}
           onChange={(event) => {
             setForm((draft) => {
-              draft.username = event.target.value ?? "";
+              draft.userName = event.target.value ?? "";
             });
           }}
           variant="standard"
         />
         <TextField
+          error={!emailValid}
           label="Email"
           value={form.email}
           onChange={(event) => {

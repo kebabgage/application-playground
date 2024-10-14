@@ -1,17 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box, Button } from "@mui/material";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { getApi } from "../api/Api";
-import { Recipe } from "../types/Recipe";
-import { Box, Button, Card, Typography } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
-import { TagPicker } from "rsuite";
-import { RecipeCard } from "./RecipeCard";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
+import { RecipeCard } from "./RecipeCard";
 
 export const RecipesList = () => {
   const api = getApi();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const isSmallScreen = useIsSmallScreen();
 
   const queryFn = () => {
     return api.getRecipes();
@@ -24,7 +20,7 @@ export const RecipesList = () => {
       sx={{
         height: "100%",
         margin: "5%",
-        // width: "100%", // isSmallScreen ? "60%" : "70%",
+        width: "95%", // isSmallScreen ? "60%" : "70%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",

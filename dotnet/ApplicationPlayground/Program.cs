@@ -1,13 +1,12 @@
 using System.Diagnostics;
+using ApplicationPlayground.Controllers;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using OpenAI.Chat;
-
-
-
+using ApplicationPlayground.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +27,8 @@ var StoragePath = Environment.GetEnvironmentVariable("DOCKER") switch
     "true" => Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"../files")),
     _ => Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\filesystem\")),
 };
+
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString(ConnectionString)));
@@ -53,7 +54,13 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 
-ChatClient client = new(model: "gpt-4o", apiKey: Environment.GetEnvironmentVariable("OPEN_AI_KEY") ?? Configuration.GetSection("OpenAIKey").GetValue<string>("Default"));
+// Set up the API key to be accessed in the Controller classes
+var apiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY") ?? Configuration.GetSection("OpenAIKey").GetValue<string>("Default");
+if (apiKey != null)
+{
+    OpenAIConfig openAIConfig = new() { ApiKey = apiKey };
+    builder.Services.AddSingleton(openAIConfig);
+}
 
 var app = builder.Build();
 
@@ -61,12 +68,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Get token endpoint
-app.MapGet("antiforgery/token", (IAntiforgery forgeryService, HttpContext context) =>
-{
-    var tokens = forgeryService.GetAndStoreTokens(context);
-    var xsrfToken = tokens.RequestToken!;
-    return TypedResults.Content(xsrfToken, "text/plain");
-});
+// app.MapGet("antiforgery/token", (IAntiforgery forgeryService, HttpContext context) =>
+// {
+//     var tokens = forgeryService.GetAndStoreTokens(context);
+//     var xsrfToken = tokens.RequestToken!;
+//     return TypedResults.Content(xsrfToken, "text/plain");
+// });
 
 app.UseCors(MyAllowSpecificOrigins);
 
@@ -86,6 +93,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -93,107 +101,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-
 app.UseHttpsRedirection();
 
 app.RegisterUsersEndpoints();
-
-var recipes = app.MapGroup("/recipe");
-
-recipes.MapGet("/", (AppDbContext dbContext) =>
-{
-    return dbContext.Recipes.OrderBy(r => r.Id).ToList();
-});
-
-recipes.MapGet("/{id}", async (int id, AppDbContext dbContext) =>
-{
-    var recipe = await dbContext.Recipes.FindAsync(id);
-
-    if (recipe is null) return Results.NotFound(id);
-
-    return Results.Ok(recipe);
-});
-
-
-recipes.MapPut("/{id}", async (int id, Recipe inputRecipe, AppDbContext db) =>
-{
-    var recipe = await db.Recipes.FindAsync(id);
-
-    if (recipe is null) return Results.NotFound();
-
-    recipe.Title = inputRecipe.Title;
-    recipe.Description = inputRecipe.Description;
-    recipe.ImageUrl = inputRecipe.ImageUrl;
-
-    await db.SaveChangesAsync();
-
-    return Results.Created($"/recipes/{recipe.Id}", recipe);
-});
-
-recipes.MapPost("/", (Recipe recipe, AppDbContext dbContext) =>
-{
-    dbContext.Recipes.Add(recipe);
-    dbContext.SaveChanges();
-
-    return Results.Created($"/recipes/{recipe.Id}", recipe);
-
-});
-
-
-recipes.MapDelete("/{id}", async (int id, AppDbContext dbContext) =>
-{
-    if (await dbContext.Recipes.FindAsync(id) is Recipe recipe)
-    {
-        dbContext.Recipes.Remove(recipe);
-        await dbContext.SaveChangesAsync();
-        return Results.NoContent();
-    }
-
-    return Results.NotFound();
-});
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-           StoragePath),
-    RequestPath = "/images"
-});
-
-app.MapPost("/image", async (IFormFile file, string originalFileName) =>
-{
-    if (file.Length > 0)
-    {
-        Console.WriteLine("Uploading file" + file.Name + "extension" + Path.GetExtension(file.FileName));
-        var fileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(originalFileName));
-        var filePath = Path.Combine(StoragePath, fileName);
-        // filePath = Path.ChangeExtension(filePath, Path.GetExtension(file.FileName));
-
-        using var stream = File.Create(filePath);
-        await file.CopyToAsync(stream);
-
-        return Results.Created("/image", fileName);
-    }
-
-    return Results.NoContent();
-}).DisableAntiforgery();
-
-app.MapPost("/ai/description", async (string title) =>
-{
-    ChatCompletion completion = await client.CompleteChatAsync($"Give me a short description for my recipe called {title}. Only return me the description");
-
-    Console.WriteLine($"[ASSISTANT]: {completion.Content[0].Text}");
-
-
-
-    //     var responseOnly = completion.Content[0].Text.ToString().Split("\n\n")[1];
-
-
-    // Console.WriteLine($"Splitted => {responseOnly}");
-
-
-    return Results.Ok(completion.Content[0].Text);
-});
+app.RegisterRecipesEndpoints();
+app.RegisterAiEndpoints();
+app.RegisterImageEndPoints();
 
 
 app.Run();

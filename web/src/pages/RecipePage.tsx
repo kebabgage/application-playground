@@ -15,6 +15,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { getApi } from "../api/Api";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { MoreHoriz } from "@mui/icons-material";
+import { DeleteModal } from "../components/DeleteModal";
 
 const RecipeHeading = styled(Typography)({
   borderBottom: "solid green",
@@ -64,7 +65,6 @@ const MethodStep = ({ step, index }: MethodStepProps) => {
       alignItems="center"
       paddingTop={1}
       onClick={() => {
-        console.log("Goog ");
         setChecked(!checked);
       }}
       sx={{ cursor: "pointer" }}
@@ -92,6 +92,7 @@ export const RecipePage = () => {
   const navigate = useNavigate();
   const isSmallScreen = useIsSmallScreen();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   /**
    * The recipe id, derived from the search parameters
@@ -137,11 +138,16 @@ export const RecipePage = () => {
 
   const handleClose = async (option: "Delete" | "Edit") => {
     setAnchorEl(null);
+    switch (option) {
+      case "Delete":
+        setDeleteModalOpen(true);
+      // handleDeleteButtonClick();
+    }
   };
 
-  const handleDeleteButtonClick = () => {
-    deleteMutation.mutate();
-  };
+  // const handleDeleteButtonClick = () => {
+  //   deleteMutation.mutate();
+  // };
 
   if (isError) {
     return (
@@ -171,6 +177,11 @@ export const RecipePage = () => {
           marginTop: 4,
         }}
       >
+        <DeleteModal
+          open={deleteModalOpen}
+          setOpen={setDeleteModalOpen}
+          recipe={recipe}
+        />
         <Box
           display="flex"
           flexDirection="row"
@@ -231,16 +242,19 @@ export const RecipePage = () => {
               </Typography>
             </Box>
           </Box>
-          <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
-            <img
-              alt={recipe.title + "image"}
-              src={api.getImageUrl(recipe.imageUrl)}
-              // height="90%"
-              width="100%"
-              height="100%"
-              style={{ borderRadius: "5px" }}
-            />
-          </Box>
+          {recipe.imageUrl !== undefined ||
+            (recipe.imageUrl !== "" && (
+              <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
+                <img
+                  alt={recipe.title + "image"}
+                  src={api.getImageUrl(recipe.imageUrl)}
+                  // height="90%"
+                  width="100%"
+                  height="100%"
+                  style={{ borderRadius: "5px" }}
+                />
+              </Box>
+            ))}
         </Box>
 
         <Box
