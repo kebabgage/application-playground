@@ -1,6 +1,6 @@
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import imageCompression from "browser-image-compression";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
@@ -8,10 +8,13 @@ import { getApi } from "../api/Api";
 import { stringToColor } from "../components/Avatar";
 import { useCurrentUser } from "../hooks/useUser";
 import { LoadingButton } from "@mui/lab";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGetUser } from "../hooks/useGetUser";
 
 export const ProfilePage = () => {
-  const [user, setUser] = useCurrentUser();
+  const [currentUser, setCurrentUser] = useCurrentUser();
+  const { data: user, isLoading } = useGetUser(currentUser?.email);
+
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
 
@@ -64,16 +67,16 @@ export const ProfilePage = () => {
 
     // TODO: Send a real API
     try {
-      if (user !== null) {
-        setUser({
-          userName: user?.userName,
-          email: user.email,
-          profileImage: imageName,
+      if (currentUser !== null) {
+        setCurrentUser({
+          // userName: user?.userName,
+          email: currentUser.email,
+          // profileImage: imageName,
         });
 
         console.log(imageName);
 
-        await api.postUser({ ...user, profileImage: imageName });
+        await api.postUser({ ...currentUser, profileImage: imageName });
       }
     } catch (error) {
       console.error(error);
@@ -87,9 +90,15 @@ export const ProfilePage = () => {
 
   // const mutation = useMutation({ mutationFn: () => api.postImage() });
 
-  if (user === null) {
+  if (currentUser === null) {
     return <Navigate to={"/login"} />;
   }
+
+  if (user === undefined || isLoading) {
+    return <CircularProgress />;
+  }
+
+  console.log(user.profileImage);
 
   return (
     <Box
@@ -107,12 +116,12 @@ export const ProfilePage = () => {
       >
         Hi {user.userName}
       </Typography>
-      {user.profileImage === undefined ? (
+      {!user.profileImage ? (
         <AccountCircle
           sx={{
             height: "250px",
             width: "250px",
-            fill: stringToColor(user.userName),
+            fill: stringToColor(user?.userName ?? "?"),
           }}
         />
       ) : (

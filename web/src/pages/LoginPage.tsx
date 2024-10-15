@@ -20,14 +20,16 @@ export const LoginPage = () => {
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (user === null) {
+      if (form === null) {
         throw new Error("User cannot be null here ");
       }
 
-      return api.postUser(user);
+      return api.postUser({ userName: form.userName, email: form.email });
     },
     onSuccess: (response) => {
       navigate("/");
+
+      setUser(form);
     },
   });
 
@@ -40,7 +42,7 @@ export const LoginPage = () => {
     // Log with the api that the user logged in
     mutation.mutate();
 
-    setUser(form);
+    // setUser(form);
 
     // navigate("/");
   };
@@ -75,7 +77,7 @@ export const LoginPage = () => {
         />
       </Box>
       <Box paddingTop={5}>
-        <Button variant="contained" onClick={() => handleSubmit()}>
+        <Button variant="contained" onClick={handleSubmit}>
           Submit
         </Button>
       </Box>

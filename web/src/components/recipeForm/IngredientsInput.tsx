@@ -5,11 +5,13 @@ import { DraftFunction } from "use-immer";
 interface IngredientsInputProps {
   values: string[];
   setForm: (arg: FormValues | DraftFunction<FormValues>) => void;
+  error: boolean;
 }
 
 export const IngredientsInput = ({
   values,
   setForm,
+  error,
 }: IngredientsInputProps) => {
   return (
     <>
@@ -17,6 +19,10 @@ export const IngredientsInput = ({
       {values.map((ingredient, index, array) => {
         return (
           <TextField
+            error={error}
+            helperText={
+              error ? "You need at least one ingredient..." : undefined
+            }
             multiline
             key={index}
             value={ingredient}

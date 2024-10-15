@@ -4,10 +4,13 @@ import { atomWithStorage } from "jotai/utils";
 
 export interface User {
   email: string;
-  userName: string;
+  userName?: string;
   profileImage?: string;
   lastLoggedIn?: Date;
 }
 
-const currentUserAtom = atomWithStorage<User | null>("user", null);
+const currentUserAtom = atomWithStorage<Pick<User, "email"> | null>(
+  "user",
+  null
+);
 export const useCurrentUser = () => useAtom(currentUserAtom);

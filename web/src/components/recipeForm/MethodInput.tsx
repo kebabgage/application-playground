@@ -5,9 +5,14 @@ import { DraftFunction } from "use-immer";
 interface IngredientsInputProps {
   values: string[];
   setForm: (arg: FormValues | DraftFunction<FormValues>) => void;
+  error: boolean;
 }
 
-export const MethodInput = ({ values, setForm }: IngredientsInputProps) => {
+export const MethodInput = ({
+  values,
+  setForm,
+  error,
+}: IngredientsInputProps) => {
   return (
     <>
       <Typography variant="h6">
@@ -16,6 +21,8 @@ export const MethodInput = ({ values, setForm }: IngredientsInputProps) => {
       {values.map((step, index, array) => {
         return (
           <TextField
+            error={error}
+            helperText={error ? "You need at least one step..." : undefined}
             key={index}
             multiline
             value={step}

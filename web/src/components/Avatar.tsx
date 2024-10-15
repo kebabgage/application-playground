@@ -33,6 +33,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 export function stringToColor(string: string) {
+  console.log(string);
   let hash = 0;
   let i;
 
@@ -49,6 +50,7 @@ export function stringToColor(string: string) {
   }
   /* eslint-enable no-bitwise */
 
+  console.log(color);
   return color;
 }
 
@@ -63,20 +65,8 @@ function stringAvatar(name: string) {
 
 interface AvatarProps {
   user: User;
-  size?: "regular" | "large";
+  size?: "medium" | "regular" | "large";
 }
-
-/**
- * 
- name={userInfo.userName}
-                  img={
-                    userInfo.profileImage
-                      ? api.getImageUrl(userInfo.profileImage)
-                      : undefined
-                  }
-                  lastActive={userInfo.lastLoggedIn}
- * @returns 
- */
 
 export const Avatar = ({ user, size }: AvatarProps) => {
   const api = getApi();
@@ -104,7 +94,11 @@ export const Avatar = ({ user, size }: AvatarProps) => {
   }
 
   const sxOverride =
-    size === "large" ? { height: "150px", width: "150px" } : undefined;
+    size === "large"
+      ? { height: "150px", width: "150px" }
+      : size === "medium"
+      ? { height: "50px", width: "50px" }
+      : undefined;
 
   if (img === undefined) {
     return (
@@ -115,7 +109,7 @@ export const Avatar = ({ user, size }: AvatarProps) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           variant="dot"
         >
-          <MuiAvatar {...stringAvatar(name)} />
+          <MuiAvatar {...stringAvatar(name ?? "?")} />
         </StyledBadge>
       </Tooltip>
     );

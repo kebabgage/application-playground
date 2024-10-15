@@ -16,10 +16,12 @@ import { getApi } from "../api/Api";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { MoreHoriz } from "@mui/icons-material";
 import { DeleteModal } from "../components/DeleteModal";
+import { Avatar } from "../components/Avatar";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 const RecipeHeading = styled(Typography)({
   borderBottom: "solid green",
-  width: "55vw",
+  width: "100%",
   paddingX: 3,
   paddingBottom: 1,
 });
@@ -93,6 +95,8 @@ export const RecipePage = () => {
   const isSmallScreen = useIsSmallScreen();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const green = "#D5ED9F";
 
   /**
    * The recipe id, derived from the search parameters
@@ -168,13 +172,15 @@ export const RecipePage = () => {
         height="100%"
         width="100%"
         sx={{
+          height: "100%",
+          margin: "5%",
+          width: "95%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
           alignContent: "center",
-          // flexWrap: "wrap",
-          // padding: 3,
-          marginTop: 4,
+          gap: 2,
+          paddingBottom: 5,
         }}
       >
         <DeleteModal
@@ -186,22 +192,12 @@ export const RecipePage = () => {
           display="flex"
           flexDirection="row"
           paddingX={3}
-          paddingBottom={1}
+          paddingBottom={5}
           // width="75%"
         >
           <RecipeHeading width="75%" flexGrow={2} variant="h4">
             {recipe?.title}
           </RecipeHeading>
-          <IconButton
-            onClick={handleMenu}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-            }}
-          >
-            <MoreHoriz />
-          </IconButton>
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
@@ -231,15 +227,63 @@ export const RecipePage = () => {
         >
           <Box
             sx={{
-              width: isSmallScreen ? "100%" : "60%",
+              display: "flex",
+              flexDirection: "column",
+              // width: isSmallScreen ? "100%" : "60%",
             }}
           >
-            <Box sx={{ border: "solid green", padding: 2 }}>
+            <Box
+              sx={{
+                background: "#FFFBE6",
+                border: "solid #00712D",
+                padding: 2,
+              }}
+            >
               <Typography variant="subtitle1">{recipe?.description}</Typography>
-              <Typography sx={{ paddingTop: 3 }}>
-                Brought to you by{" "}
-                {recipe?.username === "" ? recipe?.username : "Unknown"}
-              </Typography>
+            </Box>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingTop: 3,
+                gap: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Typography sx={{ fontStyle: "italic" }}>
+                  Brought to you by
+                  <Typography
+                    fontWeight="medium"
+                    sx={{ display: "inline", fontStyle: "normal" }}
+                  >
+                    {" " + (recipe?.user.userName ?? "Unknown")}
+                  </Typography>
+                </Typography>
+                <Avatar user={recipe.user} size="medium" />
+              </Box>
+              <Box>
+                <IconButton disabled aria-label="add an alarm">
+                  <FavoriteBorderIcon />
+                </IconButton>
+                <IconButton
+                  onClick={handleMenu}
+                  // color="primary"
+                  aria-label="add to shopping cart"
+                >
+                  <MoreHoriz />
+                </IconButton>
+              </Box>
             </Box>
           </Box>
           {recipe.imageUrl !== undefined ||
@@ -257,11 +301,21 @@ export const RecipePage = () => {
             ))}
         </Box>
 
+        {/* Ingredients and Method  */}
         <Box
-          sx={{ display: "flex", flexDirection: "column", paddingX: 3, gap: 4 }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            paddingX: 3,
+            gap: 4,
+            paddingBottom: 3,
+          }}
         >
           <Box>
-            <RecipeHeading sx={{ borderBottom: "solid green" }} variant="h3">
+            <RecipeHeading
+              sx={{ borderBottom: "solid green", width: "100%" }}
+              variant="h3"
+            >
               Ingredients
             </RecipeHeading>
             {recipe?.ingredients.map((ingredient, index) => (

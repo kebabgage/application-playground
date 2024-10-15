@@ -13,7 +13,7 @@ export const useKeepUserActive = (user: User | null) => {
       throw new Error("Can't log in user that doesn't have username or email");
     }
 
-    return api.postUser(user);
+    return api.postUser({ email: user.email });
   }, [api, user]);
 
   const { mutate } = useMutation({
@@ -26,13 +26,11 @@ export const useKeepUserActive = (user: User | null) => {
 
   // Only run this the first time they load
   useEffect(() => {
-    console.log(user);
     if (user !== null) {
       // // Post the user once
       mutate();
       // Then repeat every minute
       setTimeout(() => {
-        console.log("mutating user");
         mutate();
       }, minutesToMilliseconds(1));
     }

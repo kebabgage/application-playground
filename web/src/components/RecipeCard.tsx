@@ -45,8 +45,6 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
   const theme = useTheme();
   const isSmallScreen = useIsSmallScreen();
 
-  // console.log(recipe);
-
   return (
     <Card
       onClick={onClick}

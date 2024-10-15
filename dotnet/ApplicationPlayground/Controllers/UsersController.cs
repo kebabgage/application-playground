@@ -68,9 +68,17 @@ public static class UsersController
         {
             Console.WriteLine($"User {user.Email} found. Updating");
             // Just incase they login and change their username
-            userExists.UserName = user.UserName;
+            if (user.UserName != null)
+            {
+                userExists.UserName = user.UserName;
+            }
+
+            if (user.ProfileImage != null)
+            {
+                userExists.ProfileImage = user.ProfileImage;
+            }
+
             userExists.LastLoggedIn = DateTime.UtcNow;
-            userExists.ProfileImage = user.ProfileImage;
             await dbContext.SaveChangesAsync();
             return Results.Created($"/users/{user.Id}", userExists);
         }

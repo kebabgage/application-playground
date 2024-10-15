@@ -18,6 +18,7 @@ export const DescriptionInput = ({
   value,
   form,
   setForm,
+  error,
 }: RecipeInputProps) => {
   const queryClient = useQueryClient();
   const api = getApi();
@@ -93,6 +94,8 @@ export const DescriptionInput = ({
         multiline
         variant="standard"
         autoFocus
+        error={error}
+        helperText={error ? "You need a description..." : undefined}
       />
     </>
   );

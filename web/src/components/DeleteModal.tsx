@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -9,6 +10,11 @@ import {
 import { Recipe } from "../types/Recipe";
 import { useCurrentUser } from "../hooks/useUser";
 import { Avatar } from "./Avatar";
+import { getApi } from "../api/Api";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { LoadingButton } from "@mui/lab";
+import { useGetUser } from "../hooks/useGetUser";
 
 interface DeleteModalProps {
   recipe: Recipe;
@@ -18,6 +24,30 @@ interface DeleteModalProps {
 
 export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
   const [currentUser, setCurrentUser] = useCurrentUser();
+  const { data: user, isLoading } = useGetUser(currentUser?.email);
+
+  const api = getApi();
+  const [deleting, setDeleting] = useState(false);
+
+  const { mutate } = useMutation({
+    mutationFn: () => {
+      if (recipe.id === undefined) {
+        throw new Error("Recipe ID shouldn't be undefined");
+      }
+
+      setDeleting(true);
+      return api.deleteRecipe(recipe.id);
+    },
+    onSuccess: () => {
+      setTimeout(() => {
+        setDeleting(false);
+      }, 2000);
+    },
+  });
+
+  if (user === undefined || isLoading) {
+    return <CircularProgress />;
+  }
 
   let content;
   if (currentUser?.email !== recipe.user.email) {
@@ -52,7 +82,7 @@ export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
     content = (
       <>
         <DialogTitle>
-          Are you sure you want to delete this, {currentUser.userName}?{" "}
+          Are you sure you want to delete this, {user.userName}?{" "}
         </DialogTitle>
         <DialogContent
           sx={{
@@ -62,22 +92,28 @@ export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
             gap: 2,
           }}
         >
-          <Typography>
-            We don't want you deleting any of your cherished, family recipes
-          </Typography>
+          {deleting ? (
+            <Typography>
+              Just one second while we apologise to your family, {user.userName}
+            </Typography>
+          ) : (
+            <Typography>
+              We don't want you deleting any of your cherished, family recipes
+            </Typography>
+          )}
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={() => setOpen(false)}>
-            Close
+            Back
           </Button>
-        </DialogActions>
-        <DialogActions>
-          <Button variant="outlined" onClick={() => setOpen(false)}>
-            Close
-          </Button>
-          <Button variant="contained" color="error">
+          <LoadingButton
+            variant="contained"
+            color="error"
+            loading={deleting}
+            onClick={() => mutate()}
+          >
             Delete
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </>
     );

@@ -35,7 +35,7 @@ const PageWrapper = ({ children, showAppBar = true }: PageWrapperProps) => (
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
+      // justifyContent: "center",
       overflowY: "auto",
     }}
   >

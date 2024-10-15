@@ -19,6 +19,7 @@ import { MethodInput } from "../components/recipeForm/MethodInput";
 import { RecipeTitleForm } from "../components/recipeForm/TitleInput";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { useCurrentUser } from "../hooks/useUser";
+import { useGetUser } from "../hooks/useGetUser";
 
 const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
 
@@ -30,9 +31,17 @@ export interface FormValues {
   image?: any;
 }
 
+export interface FormErrorValues {
+  title: boolean;
+  description: boolean;
+  ingredients: boolean;
+  method: boolean;
+}
+
 export const AddRecipePage = () => {
   const isSmallScreen = useIsSmallScreen();
-  const [user, setUser] = useCurrentUser();
+  const [currentUser, setUser] = useCurrentUser();
+  const { data: user } = useGetUser(currentUser?.email);
 
   const queryClient = useQueryClient();
   const api = getApi();
@@ -49,11 +58,63 @@ export const AddRecipePage = () => {
     methodSteps: [""],
   });
 
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-  } = useForm();
+  const [error, setError] = useImmer<FormErrorValues>({
+    title: false,
+    description: false,
+    ingredients: false,
+    method: false,
+  });
+
+  const validate = (newStepNumber: number) => {
+    const ingredientsEmpties = form.ingredients.filter((i) => i !== "").length;
+
+    switch (newStepNumber) {
+      case 1:
+        setError((draft) => {
+          draft.title = form.title === "";
+        });
+        return form.title !== "";
+      case 2:
+        setError((draft) => {
+          draft.title = form.title === "";
+          draft.description = form.description === "";
+        });
+        return form.description !== "";
+
+      case 3:
+        const amountOfNonEmpties = form.ingredients.filter(
+          (i) => i !== ""
+        ).length;
+        setError((draft) => {
+          draft.title = form.title === "";
+          draft.description = form.description === "";
+          draft.ingredients = amountOfNonEmpties === 0;
+        });
+
+        return amountOfNonEmpties !== 0;
+
+      case 4:
+        const methodNonEmpty = form.methodSteps.filter((i) => i !== "");
+        setError((draft) => {
+          draft.title = form.title === "";
+          draft.description = form.description === "";
+          draft.ingredients = ingredientsEmpties === 0;
+          draft.method = methodNonEmpty.length === 0;
+        });
+
+        return methodNonEmpty.length !== 0;
+    }
+  };
+
+  const handleNextStep = (newStepNumber: number) => {
+    // Check validation
+    const formValid = validate(newStepNumber);
+
+    //
+    if (formValid) {
+      setStep(newStepNumber);
+    }
+  };
 
   const postImageMutation = useMutation({
     mutationFn: () => {
@@ -70,7 +131,7 @@ export const AddRecipePage = () => {
 
   const mutation = useMutation({
     mutationFn: (imageUrl: string) => {
-      if (user === null) {
+      if (currentUser === null) {
         throw new Error("User needs to be not null");
       }
       return api.postRecipe({
@@ -80,7 +141,7 @@ export const AddRecipePage = () => {
         ingredients: form.ingredients.filter((ingredient) => ingredient !== ""),
         methodSteps: form.methodSteps.filter((ingredient) => ingredient !== ""),
         imageUrl: imageUrl,
-        user: user,
+        user: currentUser,
       });
     },
     onSuccess: (recipe) => {
@@ -192,22 +253,37 @@ export const AddRecipePage = () => {
         flexGrow={1}
       >
         {/* The title page  */}
-        {step === 0 && <RecipeTitleForm value={form.title} setForm={setForm} />}
+        {step === 0 && (
+          <RecipeTitleForm
+            value={form.title}
+            setForm={setForm}
+            error={error.title}
+          />
+        )}
         {/* The description page  */}
         {step === 1 && (
           <DescriptionInput
             value={form.description}
             setForm={setForm}
             form={form}
+            error={error.description}
           />
         )}
         {/* The ingredients page  */}
         {step === 2 && (
-          <IngredientsInput values={form.ingredients} setForm={setForm} />
+          <IngredientsInput
+            values={form.ingredients}
+            setForm={setForm}
+            error={error.ingredients}
+          />
         )}
         {/* The method page  */}
         {step === 3 && (
-          <MethodInput values={form.methodSteps} setForm={setForm} />
+          <MethodInput
+            values={form.methodSteps}
+            setForm={setForm}
+            error={error.method}
+          />
         )}
         {step === 4 && <ImageInput value={form.image} setForm={setForm} />}
         {step === 5 && (
@@ -236,7 +312,10 @@ export const AddRecipePage = () => {
             <Box></Box>
           )}
           {step < steps.length - 1 ? (
-            <Button variant="contained" onClick={() => setStep(step + 1)}>
+            <Button
+              variant="contained"
+              onClick={() => handleNextStep(step + 1)}
+            >
               Next
             </Button>
           ) : (

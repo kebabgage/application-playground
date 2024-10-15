@@ -99,6 +99,24 @@ export class Api {
     }
   }
 
+  async keepUserActive(email: string) {
+    try {
+      const response = await fetch(`${this.getHost()}/users`, {
+        method: "POST",
+        body: JSON.stringify({
+          Email: email,
+        }),
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      });
+      return response.json();
+    } catch (error) {
+      throw new Error("!!");
+    }
+  }
+
   async postUser(user: User) {
     try {
       const response = await fetch(`${this.getHost()}/users`, {
