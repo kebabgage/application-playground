@@ -3,9 +3,6 @@ import {
   Button,
   Checkbox,
   CircularProgress,
-  IconButton,
-  Menu,
-  MenuItem,
   styled,
   Typography,
 } from "@mui/material";
@@ -13,11 +10,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getApi } from "../api/Api";
-import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
-import { MoreHoriz } from "@mui/icons-material";
 import { DeleteModal } from "../components/DeleteModal";
-import { Avatar } from "../components/Avatar";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { ActionsHeading } from "../components/recipePage/ActionsMenu";
+import { RecipeDescription } from "../components/recipePage/Description";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 
 const RecipeHeading = styled(Typography)({
   borderBottom: "solid green",
@@ -96,7 +92,8 @@ export const RecipePage = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const green = "#D5ED9F";
+  const background = "#95D2B3";
+  const underline = "#87A2FF";
 
   /**
    * The recipe id, derived from the search parameters
@@ -121,6 +118,7 @@ export const RecipePage = () => {
     data: recipe,
     isLoading,
     isError,
+    isPending,
   } = useQuery({
     queryFn,
     queryKey: ["recipes", search.get("id")],
@@ -155,16 +153,29 @@ export const RecipePage = () => {
 
   if (isError) {
     return (
-      <>
-        <Typography>Sorry this recipe doesn't exist</Typography>
-        <Button variant="contained">Go back</Button>
-      </>
+      <Box
+        height="60%"
+        width="50%"
+        display="flex"
+        flexDirection="column"
+        alignContent="center"
+        justifyContent="center"
+        alignItems="center"
+        gap={2}
+      >
+        <Typography variant="h6">Sorry this recipe doesn't exist</Typography>
+        <Button variant="contained" onClick={() => navigate("/")}>
+          Go back
+        </Button>
+      </Box>
     );
   }
 
-  if (isLoading || recipe === undefined) {
+  if (isLoading || isPending || recipe === undefined) {
     return <CircularProgress />;
   }
+
+  // console.log(api.getImageUrl(recipe.imageUrl));
 
   return (
     <>
@@ -192,113 +203,28 @@ export const RecipePage = () => {
           display="flex"
           flexDirection="row"
           paddingX={3}
-          paddingBottom={5}
+          paddingBottom={3}
           // width="75%"
         >
           <RecipeHeading width="75%" flexGrow={2} variant="h4">
             {recipe?.title}
           </RecipeHeading>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "center",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={() => handleClose("Edit")}>Edit Recipe</MenuItem>{" "}
-            <MenuItem onClick={() => handleClose("Delete")}>
-              Delete Recipe
-            </MenuItem>
-          </Menu>
         </Box>
-        <Box
-          display="flex"
-          flexDirection={isSmallScreen ? "column" : "row"}
-          paddingX={3}
-          gap={2}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              // width: isSmallScreen ? "100%" : "60%",
-            }}
-          >
-            <Box
-              sx={{
-                background: "#FFFBE6",
-                border: "solid #00712D",
-                padding: 2,
-              }}
-            >
-              <Typography variant="subtitle1">{recipe?.description}</Typography>
+        <Box display="flex" flexDirection={"column"} paddingX={3} gap={2}>
+          <RecipeDescription description={recipe.description} />
+          <ActionsHeading recipe={recipe} />
+          {recipe.imageUrl !== undefined && recipe.imageUrl !== "" && (
+            <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
+              <img
+                alt={recipe.title + "image"}
+                src={api.getImageUrl(recipe.imageUrl)}
+                // height="90%"
+                width="100%"
+                height="100%"
+                style={{ borderRadius: "5px" }}
+              />
             </Box>
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingTop: 3,
-                gap: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Typography sx={{ fontStyle: "italic" }}>
-                  Brought to you by
-                  <Typography
-                    fontWeight="medium"
-                    sx={{ display: "inline", fontStyle: "normal" }}
-                  >
-                    {" " + (recipe?.user.userName ?? "Unknown")}
-                  </Typography>
-                </Typography>
-                <Avatar user={recipe.user} size="medium" />
-              </Box>
-              <Box>
-                <IconButton disabled aria-label="add an alarm">
-                  <FavoriteBorderIcon />
-                </IconButton>
-                <IconButton
-                  onClick={handleMenu}
-                  // color="primary"
-                  aria-label="add to shopping cart"
-                >
-                  <MoreHoriz />
-                </IconButton>
-              </Box>
-            </Box>
-          </Box>
-          {recipe.imageUrl !== undefined ||
-            (recipe.imageUrl !== "" && (
-              <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
-                <img
-                  alt={recipe.title + "image"}
-                  src={api.getImageUrl(recipe.imageUrl)}
-                  // height="90%"
-                  width="100%"
-                  height="100%"
-                  style={{ borderRadius: "5px" }}
-                />
-              </Box>
-            ))}
+          )}
         </Box>
 
         {/* Ingredients and Method  */}

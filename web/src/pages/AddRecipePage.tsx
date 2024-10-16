@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   LinearProgress,
+  Slide,
   Step,
   StepLabel,
   Stepper,
@@ -124,14 +125,14 @@ export const AddRecipePage = () => {
       // Make the progress bar do a little thing
       setTimeout(() => setSubmitState(100), 2);
 
-      mutation.mutate(data);
+      mutate(data);
     },
     mutationKey: ["post", "image"],
   });
 
-  const mutation = useMutation({
+  const { mutate, isError, isPending } = useMutation({
     mutationFn: (imageUrl: string) => {
-      if (currentUser === null) {
+      if (user === null || user === undefined) {
         throw new Error("User needs to be not null");
       }
       return api.postRecipe({
@@ -141,7 +142,7 @@ export const AddRecipePage = () => {
         ingredients: form.ingredients.filter((ingredient) => ingredient !== ""),
         methodSteps: form.methodSteps.filter((ingredient) => ingredient !== ""),
         imageUrl: imageUrl,
-        user: currentUser,
+        user: user,
       });
     },
     onSuccess: (recipe) => {
@@ -151,14 +152,15 @@ export const AddRecipePage = () => {
 
       setRecipeId(recipe.id ?? undefined);
     },
+
     mutationKey: ["post", "recipe"],
   });
 
   if (submitState !== null) {
     return (
       <Box
-        height="100%"
-        width="40%"
+        height="60%"
+        width="80%"
         display="flex"
         flexDirection="column"
         justifyContent="center"
@@ -222,15 +224,7 @@ export const AddRecipePage = () => {
           alignSelf: "flex-start",
         }}
       >
-        <Stepper
-          sx={
-            {
-              // width: isSmallScreen ? "default" : "60%",
-            }
-          }
-          activeStep={step}
-          alternativeLabel
-        >
+        <Stepper activeStep={step} alternativeLabel>
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
@@ -246,7 +240,7 @@ export const AddRecipePage = () => {
         </Stepper>
       </Box>
       <Box
-        width={isSmallScreen ? "90%" : "40%"}
+        width={"90%"}
         display="flex"
         flexDirection="column"
         justifyContent="center"
@@ -291,9 +285,7 @@ export const AddRecipePage = () => {
             <Typography>
               {postImageMutation.isPending ? "Image posting" : "Done"}
             </Typography>
-            <Typography>
-              {mutation.isPending ? "Recipe posting" : "Done"}
-            </Typography>
+            <Typography>{isPending ? "Recipe posting" : "Done"}</Typography>
           </>
         )}
         <Box
@@ -305,7 +297,7 @@ export const AddRecipePage = () => {
           }}
         >
           {step !== 0 ? (
-            <Button variant="contained" onClick={() => setStep(step - 1)}>
+            <Button variant="outlined" onClick={() => setStep(step - 1)}>
               Previous
             </Button>
           ) : (
@@ -326,7 +318,7 @@ export const AddRecipePage = () => {
                 setSubmitState(0);
 
                 if (form.image === undefined) {
-                  mutation.mutate("");
+                  mutate("");
                 } else {
                   // Make the post image call
                   postImageMutation.mutate();

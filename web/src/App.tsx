@@ -18,6 +18,8 @@ import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RecipePage } from "./pages/RecipePage";
+import { ThemeProvider } from "@emotion/react";
+import { theme } from "./util/theme";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +37,7 @@ const PageWrapper = ({ children, showAppBar = true }: PageWrapperProps) => (
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      // justifyContent: "center",
+      justifyContent: showAppBar === true ? "inherit" : "center",
       overflowY: "auto",
     }}
   >
@@ -96,9 +98,11 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <PageWrapper> */}
-      <RouterProvider router={router} />
-      {/* </PageWrapper> */}
+      <ThemeProvider theme={theme}>
+        {/* <PageWrapper> */}
+        <RouterProvider router={router} />
+        {/* </PageWrapper> */}
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

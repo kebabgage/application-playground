@@ -8,7 +8,7 @@ import { getApi } from "../api/Api";
 import { stringToColor } from "../components/Avatar";
 import { useCurrentUser } from "../hooks/useUser";
 import { LoadingButton } from "@mui/lab";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGetUser } from "../hooks/useGetUser";
 
 export const ProfilePage = () => {
@@ -19,19 +19,62 @@ export const ProfilePage = () => {
   const queryClient = useQueryClient();
 
   const api = getApi();
-  const [image, setImage] = useState<Blob>();
+  const [newImage, setNewImage] = useState<Blob>();
   // const [image, setImage] = useState<Blob>();
+  const [imageName, setImageName] = useState();
 
+  const { mutate } = useMutation({
+    mutationFn: (image2: Blob | undefined) => {
+      if (image2 === undefined) {
+        console.log("sorry! Image is not defined");
+      }
+      return api.postImage(image2);
+
+      console.log("mutation1", newImage);
+      // console.log(imageName);
+    },
+    onSuccess: (response) => {
+      console.log(response);
+      console.log(api.getImageUrl(response));
+      mutate2(response);
+    },
+  });
+
+  const { mutate: mutate2 } = useMutation({
+    mutationFn: (imageUrl: string) => {
+      if (user === undefined) {
+        throw new Error("Error with the updating of your user sorry!");
+      }
+      // if (user !== null && user?.email !== undefined) {
+      return api.postUser({ ...user, profileImage: imageUrl });
+      // }
+
+      // try {
+      // if (currentUser !== null) {
+      //   setCurrentUser({
+      //     // userName: user?.userName,
+      //     email: currentUser.email,
+      //     // profileImage: imageName,
+      //   });
+      // console.log(imageName);
+      // }
+      // } catch (error) {
+      //   console.error(error);
+      // }
+    },
+    onSuccess: () => {
+      // Refresh the user
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      setLoading(false);
+    },
+  });
+
+  /**
+   * Sets the image
+   */
   const onChange = async (image: File) => {
     setLoading(true);
-    // console.log("compressing hopefully");
-
-    // console.log(image.name);
-
-    // const imageFile = event.target.files[0];
-    // console.log("originalFile instanceof Blob", image instanceof Blob); // true
-    // console.log(`originalFile size ${image.size / 1024 / 1024} MB`);
-
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
@@ -41,54 +84,13 @@ export const ProfilePage = () => {
 
     try {
       const compressedFile = await imageCompression(image, options);
-      // console.log(
-      //   "compressedFile instanceof Blob",
-      //   compressedFile instanceof Blob
-      // ); // true
-      // console.log(
-      //   `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      // ); // smaller than maxSizeMB
+      setNewImage(compressedFile);
 
-      // console.log(compressedFile.name);
-      // console.log(compressedFile);
-
-      setImage(compressedFile);
+      mutate(compressedFile);
     } catch (error) {
-      console.error(error);
+      throw new Error("Error in compressing image :/");
     }
-
-    let imageName;
-    try {
-      imageName = await api.postImage(image);
-      // console.log(imageName);
-    } catch (error) {
-      console.error("Error when trying to save image", error);
-    }
-
-    // TODO: Send a real API
-    try {
-      if (currentUser !== null) {
-        setCurrentUser({
-          // userName: user?.userName,
-          email: currentUser.email,
-          // profileImage: imageName,
-        });
-
-        console.log(imageName);
-
-        await api.postUser({ ...currentUser, profileImage: imageName });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    // It is all done
-    setLoading(false);
-
-    queryClient.invalidateQueries({ queryKey: ["user", "recipe"] });
   };
-
-  // const mutation = useMutation({ mutationFn: () => api.postImage() });
 
   if (currentUser === null) {
     return <Navigate to={"/login"} />;
@@ -97,8 +99,6 @@ export const ProfilePage = () => {
   if (user === undefined || isLoading) {
     return <CircularProgress />;
   }
-
-  console.log(user.profileImage);
 
   return (
     <Box
@@ -144,7 +144,13 @@ export const ProfilePage = () => {
               objectFit: "cover",
             }}
             alt={user.userName + "'s-username"}
-            src={user.profileImage ? api.getImageUrl(user.profileImage) : ""}
+            src={
+              newImage !== undefined
+                ? URL.createObjectURL(newImage)
+                : user.profileImage
+                ? api.getImageUrl(user.profileImage)
+                : ""
+            }
           />
         </Box>
       )}
@@ -153,7 +159,6 @@ export const ProfilePage = () => {
           loading={loading}
           variant="contained"
           endIcon={<CameraAltIcon />}
-          // onClick={() => setLoading(true)}
           component="label"
         >
           Change Profile Picture
@@ -167,7 +172,6 @@ export const ProfilePage = () => {
             }}
           />
         </LoadingButton>
-        {/* )} */}
       </Box>
     </Box>
   );

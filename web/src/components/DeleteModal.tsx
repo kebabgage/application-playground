@@ -11,10 +11,11 @@ import { Recipe } from "../types/Recipe";
 import { useCurrentUser } from "../hooks/useUser";
 import { Avatar } from "./Avatar";
 import { getApi } from "../api/Api";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import { useGetUser } from "../hooks/useGetUser";
+import { useNavigate } from "react-router-dom";
 
 interface DeleteModalProps {
   recipe: Recipe;
@@ -24,7 +25,9 @@ interface DeleteModalProps {
 
 export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
   const [currentUser, setCurrentUser] = useCurrentUser();
+  const queryClient = useQueryClient();
   const { data: user, isLoading } = useGetUser(currentUser?.email);
+  const navigate = useNavigate();
 
   const api = getApi();
   const [deleting, setDeleting] = useState(false);
@@ -41,6 +44,9 @@ export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
     onSuccess: () => {
       setTimeout(() => {
         setDeleting(false);
+
+        setOpen(false);
+        navigate("/");
       }, 2000);
     },
   });

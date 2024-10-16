@@ -64,7 +64,7 @@ export class Api {
     return response.json();
   }
 
-  async postImage(image: any) {
+  async postImage(image: any): Promise<string> {
     const formData = new FormData();
     formData.append("file", image);
 

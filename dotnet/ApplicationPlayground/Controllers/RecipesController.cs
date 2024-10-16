@@ -36,11 +36,39 @@ public static class RecipesController
 
     private static async Task<IResult> CreateRecipe(Recipe recipe, AppDbContext dbContext)
     {
+        if (recipe.User != null)
+        {
+            // Try and find the user 
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == recipe.User.Email);
+            if (user == null)
+            {
+                // Add the user 
+                await dbContext.Users.AddAsync(recipe.User);
+            }
+            else
+            {
+                recipe.User = user;
+            }
+        }
+
         dbContext.Recipes.Add(recipe);
         await dbContext.SaveChangesAsync();
 
         return Results.Created($"/recipes/{recipe.Id}", recipe);
 
+    }
+
+    private static async Task<IResult> CreateRecipeBatch(Recipe[] recipes, AppDbContext dbContext)
+    {
+        foreach (var recipe in recipes)
+        {
+            Console.WriteLine($"{recipe.Title}");
+            await CreateRecipe(recipe, dbContext);
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        return Results.Created("$/recipes/batch/", recipes);
     }
 
 
@@ -66,6 +94,7 @@ public static class RecipesController
         recipes.MapGet("/{id}", GetRecipe);
         recipes.MapPut("/{id}", UpdateRecipe);
         recipes.MapPost("/", CreateRecipe);
+        recipes.MapPost("/batch/", CreateRecipeBatch);
         recipes.MapDelete("/{id}", DeleteRecipe);
     }
 }

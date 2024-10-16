@@ -71,10 +71,17 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
+                gap: 1,
               }}
             >
+              <Typography fontStyle="italic">
+                From{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  {recipe.user.userName}
+                </span>
+              </Typography>
+
               <Avatar user={recipe.user} />
-              <Typography>{recipe.username}</Typography>
             </Box>
           )}
         </Box>

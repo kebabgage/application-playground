@@ -33,7 +33,6 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 export function stringToColor(string: string) {
-  console.log(string);
   let hash = 0;
   let i;
 
@@ -50,7 +49,6 @@ export function stringToColor(string: string) {
   }
   /* eslint-enable no-bitwise */
 
-  console.log(color);
   return color;
 }
 

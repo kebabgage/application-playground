@@ -21,18 +21,25 @@ export const useKeepUserActive = (user: User | null) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
-    mutationKey: ["post", "user"],
+    mutationKey: ["user", "post"],
   });
+
+  const mutateRepeated = useCallback(() => {
+    setTimeout(() => {
+      // Hit the mutate API
+      // console.log("mutating the user");
+      mutate();
+
+      // Restart
+      mutateRepeated();
+    }, minutesToMilliseconds(1));
+  }, [mutate]);
 
   // Only run this the first time they load
   useEffect(() => {
     if (user !== null) {
-      // // Post the user once
-      mutate();
-      // Then repeat every minute
-      setTimeout(() => {
-        mutate();
-      }, minutesToMilliseconds(1));
+      // console.log("doing the thing ");
+      mutateRepeated();
     }
-  }, [user, mutate]);
+  }, []);
 };
