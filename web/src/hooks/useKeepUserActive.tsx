@@ -27,7 +27,6 @@ export const useKeepUserActive = (user: User | null) => {
   const mutateRepeated = useCallback(() => {
     setTimeout(() => {
       // Hit the mutate API
-      // console.log("mutating the user");
       mutate();
 
       // Restart
@@ -38,7 +37,6 @@ export const useKeepUserActive = (user: User | null) => {
   // Only run this the first time they load
   useEffect(() => {
     if (user !== null) {
-      // console.log("doing the thing ");
       mutateRepeated();
     }
   }, []);

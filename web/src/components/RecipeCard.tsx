@@ -2,6 +2,8 @@ import { Box, Card, Typography, useTheme } from "@mui/material";
 import { Recipe } from "../types/Recipe";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { Avatar } from "./Avatar";
+import { Highlighted } from "./search/Highlighted";
+import { ListContains } from "./search/ListContains";
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -40,10 +42,29 @@ function stringAvatar(name: string) {
 interface RecipeCardProps {
   recipe: Recipe;
   onClick?: () => void;
+  searchValue?: string;
 }
-export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
+export const RecipeCard = ({
+  recipe,
+  onClick,
+  searchValue,
+}: RecipeCardProps) => {
   const theme = useTheme();
   const isSmallScreen = useIsSmallScreen();
+
+  const RecipeTitle =
+    searchValue === "" ? (
+      recipe.title
+    ) : (
+      <Highlighted text={recipe.title} highlight={searchValue} />
+    );
+
+  const Description =
+    searchValue === "" ? (
+      recipe.description
+    ) : (
+      <Highlighted text={recipe.description} highlight={searchValue} />
+    );
 
   return (
     <Card
@@ -64,8 +85,8 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
             justifyContent: "space-between",
           }}
         >
-          <Typography variant="h6">{recipe.title}</Typography>
-          {recipe.user !== undefined && (
+          <Typography variant="h6">{RecipeTitle}</Typography>
+          {recipe.user !== null && (
             <Box
               sx={{
                 display: "flex",
@@ -97,9 +118,24 @@ export const RecipeCard = ({ recipe, onClick }: RecipeCardProps) => {
             textOverflow: "ellipsis",
           }}
         >
-          {recipe.description}
-          {/* {recipe.description.slice(0, 150)}... */}
+          {Description}
         </Typography>
+        {searchValue === "" ? null : (
+          <Box display="flex" flexDirection="row" gap={8}>
+            <ListContains
+              searchValue={searchValue}
+              ingredients={recipe.ingredients}
+              listName="Ingredients"
+              limit={3}
+            />
+            <ListContains
+              searchValue={searchValue}
+              ingredients={recipe.methodSteps}
+              listName="Method"
+              limit={2}
+            />
+          </Box>
+        )}
       </Box>
     </Card>
   );

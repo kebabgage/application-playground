@@ -1,3 +1,4 @@
+using System.Xml.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationPlayground.Controllers;
@@ -84,6 +85,16 @@ public static class RecipesController
         return Results.NotFound();
     }
 
+    private static async Task<IResult> SearchRecipes(string value, AppDbContext dbContext)
+    {
+        var recipes = dbContext.Recipes.Where(r => r.Title.Contains(value) ||
+            r.Description.Contains(value) ||
+            r.Ingredients.Any(i => i.Contains(value)) ||
+            r.MethodSteps.Any(i => i.Contains(value)) ||
+            r.User.UserName.Contains(value)).Include(r => r.User);
+        return Results.Ok(recipes);
+    }
+
 
     public static void RegisterRecipesEndpoints(this WebApplication app)
     {
@@ -96,5 +107,6 @@ public static class RecipesController
         recipes.MapPost("/", CreateRecipe);
         recipes.MapPost("/batch/", CreateRecipeBatch);
         recipes.MapDelete("/{id}", DeleteRecipe);
+        recipes.MapGet("/search/{value}", SearchRecipes);
     }
 }

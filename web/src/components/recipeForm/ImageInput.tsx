@@ -10,10 +10,6 @@ interface ImageInputProps {
 
 export const ImageInput = ({ value, setForm }: ImageInputProps) => {
   const onChange = async (image: File) => {
-    // const imageFile = event.target.files[0];
-    // console.log("originalFile instanceof Blob", image instanceof Blob); // true
-    // console.log(`originalFile size ${image.size / 1024 / 1024} MB`);
-
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
@@ -23,16 +19,6 @@ export const ImageInput = ({ value, setForm }: ImageInputProps) => {
 
     try {
       const compressedFile = await imageCompression(image, options);
-      // console.log(
-      //   "compressedFile instanceof Blob",
-      //   compressedFile instanceof Blob
-      // ); // true
-      // console.log(
-      //   `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      // ); // smaller than maxSizeMB
-
-      // console.log(compressedFile.name);
-      // console.log(compressedFile);
 
       setForm((draft) => {
         if (compressedFile) {
@@ -41,7 +27,6 @@ export const ImageInput = ({ value, setForm }: ImageInputProps) => {
       });
     } catch (error) {
       throw new Error("Error uploading image");
-      // console.log(error);
     }
   };
 

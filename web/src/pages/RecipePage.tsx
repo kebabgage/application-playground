@@ -175,8 +175,6 @@ export const RecipePage = () => {
     return <CircularProgress />;
   }
 
-  // console.log(api.getImageUrl(recipe.imageUrl));
-
   return (
     <>
       <Box

@@ -29,13 +29,8 @@ export const ProfilePage = () => {
         console.log("sorry! Image is not defined");
       }
       return api.postImage(image2);
-
-      console.log("mutation1", newImage);
-      // console.log(imageName);
     },
     onSuccess: (response) => {
-      console.log(response);
-      console.log(api.getImageUrl(response));
       mutate2(response);
     },
   });
@@ -45,22 +40,8 @@ export const ProfilePage = () => {
       if (user === undefined) {
         throw new Error("Error with the updating of your user sorry!");
       }
-      // if (user !== null && user?.email !== undefined) {
-      return api.postUser({ ...user, profileImage: imageUrl });
-      // }
 
-      // try {
-      // if (currentUser !== null) {
-      //   setCurrentUser({
-      //     // userName: user?.userName,
-      //     email: currentUser.email,
-      //     // profileImage: imageName,
-      //   });
-      // console.log(imageName);
-      // }
-      // } catch (error) {
-      //   console.error(error);
-      // }
+      return api.postUser({ ...user, profileImage: imageUrl });
     },
     onSuccess: () => {
       // Refresh the user

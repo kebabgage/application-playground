@@ -1,32 +1,25 @@
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
-import { useState } from "react";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useNavigate,
-} from "react-router-dom";
-import { getApi } from "./api/Api";
-import { AppShell } from "./components/AppShell";
-import { useCountry } from "./hooks/useCountry";
-import { useCurrentUser } from "./hooks/useUser";
+import { ThemeProvider } from "@emotion/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AppShell as Shell } from "./components/AppShell";
 import { AddRecipePage } from "./pages/AddRecipePage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RecipePage } from "./pages/RecipePage";
-import { ThemeProvider } from "@emotion/react";
 import { theme } from "./util/theme";
+import React from "react";
+import { SearchPage } from "./pages/SearchPage";
 
 const queryClient = new QueryClient();
+
+const AppShell = React.memo(Shell);
 
 interface PageWrapperProps {
   showAppBar?: boolean;
   children: React.ReactNode;
 }
+
 const PageWrapper = ({ children, showAppBar = true }: PageWrapperProps) => (
   <div
     id="App"
@@ -91,6 +84,14 @@ function App() {
       element: (
         <PageWrapper>
           <ProfilePage />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/search",
+      element: (
+        <PageWrapper>
+          <SearchPage />
         </PageWrapper>
       ),
     },

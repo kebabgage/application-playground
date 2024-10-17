@@ -165,6 +165,19 @@ export class Api {
     }
   }
 
+  async searchRecipes(searchValue: string): Promise<Recipe[]> {
+    console.log("api being called", searchValue);
+    try {
+      const response = await fetch(
+        `${this.getHost()}/recipe/search/${searchValue}`
+      );
+
+      return response.json();
+    } catch (error) {
+      throw new Error("Error searching recipes" + error);
+    }
+  }
+
   async logout() {
     try {
       const response = await fetch(`${this.getHost()}/`);
