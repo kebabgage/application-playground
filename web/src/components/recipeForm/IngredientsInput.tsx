@@ -13,14 +13,14 @@ import { useEffect, useState } from "react";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
 
-const getParagraphText = (values: string[]) => {
+export const getParagraphText = (values: string[]) => {
   if (values.length === 0) {
     return "";
   }
   return values.join("\n");
 };
 
-const getListFromParagraph = (paragraph: string) => {
+export const getListFromParagraph = (paragraph: string) => {
   return paragraph.split("\n");
 };
 
@@ -114,18 +114,6 @@ export const IngredientsInput = ({
         width="100%"
         justifyContent="flex-end"
       >
-        {/* <FormControlLabel
-          control={
-            <Switch
-              value={view}
-              onChange={() => {
-                handleToggle(view === "paragraph" ? "list" : "paragraph");
-              }}
-              color="secondary"
-            />
-          }
-          label="Paragraph View"
-        /> */}
         <ToggleButtonGroup
           color="secondary"
           value={view}
