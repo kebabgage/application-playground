@@ -69,3 +69,5 @@ yarn-error.log*
 filesystem/*
 
 .env
+db/recipes_backup-16-10-2024
+dotnet/ApplicationPlayground/appsettings.Development.json

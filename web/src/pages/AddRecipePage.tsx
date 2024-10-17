@@ -70,11 +70,18 @@ export const AddRecipePage = () => {
     const ingredientsEmpties = form.ingredients.filter((i) => i !== "").length;
 
     switch (newStepNumber) {
+      /**
+       * Title page
+       */
       case 1:
         setError((draft) => {
           draft.title = form.title === "";
         });
         return form.title !== "";
+
+      /**
+       * Description page
+       */
       case 2:
         setError((draft) => {
           draft.title = form.title === "";
@@ -82,6 +89,9 @@ export const AddRecipePage = () => {
         });
         return form.description !== "";
 
+      /**
+       * Ingredients page
+       */
       case 3:
         const amountOfNonEmpties = form.ingredients.filter(
           (i) => i !== ""
@@ -94,6 +104,9 @@ export const AddRecipePage = () => {
 
         return amountOfNonEmpties !== 0;
 
+      /**
+       * Method page
+       */
       case 4:
         const methodNonEmpty = form.methodSteps.filter((i) => i !== "");
         setError((draft) => {
@@ -108,6 +121,7 @@ export const AddRecipePage = () => {
   };
 
   const handleNextStep = (newStepNumber: number) => {
+    console.log(form);
     // Check validation
     const formValid = validate(newStepNumber);
 

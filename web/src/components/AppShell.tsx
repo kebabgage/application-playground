@@ -202,6 +202,7 @@ export const AppShell = () => {
           )}
         </Toolbar>
       </AppBar>
+      {/* <Toolbar /> */}
     </>
   );
 };
