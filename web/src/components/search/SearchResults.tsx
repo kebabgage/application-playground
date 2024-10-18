@@ -17,7 +17,11 @@ export const SearchResults = ({
   const navigate = useNavigate();
 
   if (data?.length === 0 && searchValue === "") {
-    return <Typography>Enter a search value to see results</Typography>;
+    return (
+      <Typography sx={{ alignSelf: "center" }}>
+        Enter a search value to see results
+      </Typography>
+    );
   }
 
   if (isFetching) {

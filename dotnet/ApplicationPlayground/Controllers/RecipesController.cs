@@ -1,7 +1,15 @@
+using System.Runtime.InteropServices;
 using System.Xml.Schema;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationPlayground.Controllers;
+
+public class SearchParameters
+{
+    public string SearchValue { get; set; }
+    public string[]? UserEmails { get; set; }
+}
 
 public static class RecipesController
 {
@@ -95,6 +103,38 @@ public static class RecipesController
         return Results.Ok(recipes);
     }
 
+    private static async Task<IResult> SearchRecipes2(SearchParameters searchOption, AppDbContext dbContext)
+    {
+
+        IQueryable<Recipe> recipes = dbContext.Recipes;
+
+        Console.WriteLine($"{searchOption?.UserEmails?.Length}");
+
+        if (searchOption?.UserEmails != null && searchOption.UserEmails.Length != 0)
+        {
+            recipes = recipes.Include(r => r.User).Where(r => searchOption.UserEmails.Contains(r.User.Email));
+            recipes.ToList().ForEach(r =>
+            {
+                Console.WriteLine($"{r.User.Email}");
+            });
+        }
+
+        Console.WriteLine($"{recipes.ToArray().Length}");
+
+        if (searchOption?.SearchValue != null && searchOption.SearchValue != "")
+        {
+            Console.WriteLine("Filtering by serach value");
+            recipes = recipes.Where(r => r.Title.Contains(searchOption.SearchValue) ||
+                      r.Description.Contains(searchOption.SearchValue) ||
+                      r.Ingredients.Any(i => i.Contains(searchOption.SearchValue)) ||
+                      r.MethodSteps.Any(i => i.Contains(searchOption.SearchValue)));
+            Console.WriteLine($"{recipes.ToArray().Length}");
+        }
+
+
+        return Results.Ok(recipes);
+    }
+
 
     public static void RegisterRecipesEndpoints(this WebApplication app)
     {
@@ -107,6 +147,7 @@ public static class RecipesController
         recipes.MapPost("/", CreateRecipe);
         recipes.MapPost("/batch/", CreateRecipeBatch);
         recipes.MapDelete("/{id}", DeleteRecipe);
-        recipes.MapGet("/search/{value}", SearchRecipes);
+        // recipes.MapGet("/search/{value}", SearchRecipes);
+        recipes.MapPost("/search/", SearchRecipes2);
     }
 }

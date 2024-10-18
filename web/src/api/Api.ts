@@ -137,6 +137,15 @@ export class Api {
     }
   }
 
+  async getUsers(): Promise<User[]> {
+    try {
+      const response = await fetch(`${this.getHost()}/users/`);
+      return response.json();
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
+  }
+
   async getUser(email: string): Promise<User> {
     try {
       const response = await fetch(`${this.getHost()}/users/email=${email}`);
@@ -165,12 +174,23 @@ export class Api {
     }
   }
 
-  async searchRecipes(searchValue: string): Promise<Recipe[]> {
-    console.log("api being called", searchValue);
+  async searchRecipes(
+    searchValue: string,
+    filter: string[]
+  ): Promise<Recipe[]> {
+    console.log(filter);
     try {
-      const response = await fetch(
-        `${this.getHost()}/recipe/search/${searchValue}`
-      );
+      const response = await fetch(`${this.getHost()}/recipe/search/`, {
+        method: "POST",
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          searchValue: searchValue,
+          userEmails: filter,
+        }),
+      });
 
       return response.json();
     } catch (error) {
