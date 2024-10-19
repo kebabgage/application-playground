@@ -72,7 +72,7 @@ export const Avatar = ({ user, size }: AvatarProps) => {
   // Extract the values from user that we want
   const name = user.userName;
   const img = user.profileImage
-    ? api.getImageUrl(user.profileImage)
+    ? api.images.getImageUrl(user.profileImage)
     : undefined;
 
   const isBadgeVisible =

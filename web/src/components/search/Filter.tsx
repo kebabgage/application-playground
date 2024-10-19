@@ -39,7 +39,7 @@ export const Filter = ({ values, onChange }: FilterProps) => {
   };
 
   const { data } = useQuery({
-    queryFn: () => api.getUsers(),
+    queryFn: () => api.users.getUsers(),
     queryKey: ["users", "all"],
   });
 
@@ -68,14 +68,14 @@ export const Filter = ({ values, onChange }: FilterProps) => {
           </MenuItem>
         ))}
       </Menu>
-      <Box display="flex" flexWrap="wrap" gap={1}>
-        <Button variant="outlined" onClick={handleClick}>
-          Filter by User
-        </Button>
-        {values.map((value) => (
-          <Chip label={value.userName} onDelete={() => handleDelete(value)} />
-        ))}
-      </Box>
+      {/* <Box display="flex" flexWrap="wrap" gap={1}> */}
+      <Button variant="outlined" onClick={handleClick}>
+        Filter by User
+      </Button>
+      {values.map((value) => (
+        <Chip label={value.userName} onDelete={() => handleDelete(value)} />
+      ))}
+      {/* </Box> */}
     </>
   );
 };

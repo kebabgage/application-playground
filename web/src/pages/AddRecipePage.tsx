@@ -133,7 +133,7 @@ export const AddRecipePage = () => {
 
   const postImageMutation = useMutation({
     mutationFn: () => {
-      return api.postImage(form.image);
+      return api.images.postImage(form.image);
     },
     onSuccess: (data) => {
       // Make the progress bar do a little thing
@@ -149,7 +149,7 @@ export const AddRecipePage = () => {
       if (user === null || user === undefined) {
         throw new Error("User needs to be not null");
       }
-      return api.postRecipe({
+      return api.recipes.postRecipe({
         title: form.title,
         description: form.description,
         username: user?.userName,

@@ -10,7 +10,7 @@ export const RecipesList = () => {
   const navigate = useNavigate();
 
   const queryFn = () => {
-    return api.getRecipes();
+    return api.recipes.getRecipes();
   };
 
   const { data, isLoading } = useQuery({ queryFn, queryKey: ["recipe"] });

@@ -10,7 +10,7 @@ export const useGetUser = (email?: string) => {
         throw new Error("We can't fetch without an email set...");
       }
 
-      return api.getUser(email);
+      return api.users.getUser(email);
     },
 
     queryKey: ["user", `email=${email}}`],

@@ -54,6 +54,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 
+
 // Set up the API key to be accessed in the Controller classes
 var apiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY") ?? Configuration.GetSection("OpenAIKey").GetValue<string>("Default");
 if (apiKey != null)

@@ -20,15 +20,13 @@ export const ProfilePage = () => {
 
   const api = getApi();
   const [newImage, setNewImage] = useState<Blob>();
-  // const [image, setImage] = useState<Blob>();
-  const [imageName, setImageName] = useState();
 
   const { mutate } = useMutation({
     mutationFn: (image2: Blob | undefined) => {
       if (image2 === undefined) {
         console.log("sorry! Image is not defined");
       }
-      return api.postImage(image2);
+      return api.images.postImage(image2);
     },
     onSuccess: (response) => {
       mutate2(response);
@@ -41,7 +39,7 @@ export const ProfilePage = () => {
         throw new Error("Error with the updating of your user sorry!");
       }
 
-      return api.postUser({ ...user, profileImage: imageUrl });
+      return api.users.postUser({ ...user, profileImage: imageUrl });
     },
     onSuccess: () => {
       // Refresh the user
@@ -129,7 +127,7 @@ export const ProfilePage = () => {
               newImage !== undefined
                 ? URL.createObjectURL(newImage)
                 : user.profileImage
-                ? api.getImageUrl(user.profileImage)
+                ? api.images.getImageUrl(user.profileImage)
                 : ""
             }
           />

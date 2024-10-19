@@ -23,7 +23,7 @@ export const SearchPage = () => {
         return [];
       }
 
-      return api.searchRecipes(
+      return api.recipes.searchRecipes(
         debouncedSearch,
         usersFilter.map((u) => u.email)
       );

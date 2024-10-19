@@ -39,7 +39,7 @@ export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
       }
 
       setDeleting(true);
-      return api.deleteRecipe(recipe.id);
+      return api.recipes.deleteRecipe(recipe.id);
     },
     onSuccess: () => {
       setTimeout(() => {

@@ -111,7 +111,7 @@ export const RecipePage = () => {
     if (id === null) {
       throw new Error("Id in query parameters is wrong");
     }
-    return api.getRecipe(id);
+    return api.recipes.getRecipe(id);
   };
 
   const {
@@ -127,29 +127,12 @@ export const RecipePage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: () => {
-      return api.deleteRecipe(id);
+      return api.recipes.deleteRecipe(id);
     },
     onSuccess: () => {
       navigate("/");
     },
   });
-
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = async (option: "Delete" | "Edit") => {
-    setAnchorEl(null);
-    switch (option) {
-      case "Delete":
-        setDeleteModalOpen(true);
-      // handleDeleteButtonClick();
-    }
-  };
-
-  // const handleDeleteButtonClick = () => {
-  //   deleteMutation.mutate();
-  // };
 
   if (isError) {
     return (
@@ -215,7 +198,7 @@ export const RecipePage = () => {
             <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
               <img
                 alt={recipe.title + "image"}
-                src={api.getImageUrl(recipe.imageUrl)}
+                src={api.images.getImageUrl(recipe.imageUrl)}
                 // height="90%"
                 width="100%"
                 height="100%"

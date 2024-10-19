@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Dialog,
   Fade,
   InputAdornment,
   Modal,
@@ -13,6 +14,7 @@ import ReactEmojis from "@souhaildev/reactemojis";
 
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useIsAiEnabled } from "../../hooks/useIsAiEnabled";
 
 export const DescriptionInput = ({
   value,
@@ -23,6 +25,9 @@ export const DescriptionInput = ({
   const queryClient = useQueryClient();
   const api = getApi();
   const [showAnimation, setShowAnimation] = useState(false);
+  const { data } = useIsAiEnabled();
+
+  console.log(data);
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -30,7 +35,7 @@ export const DescriptionInput = ({
         throw new Error("Not enabled but still trying to query ");
       }
 
-      return api.generateDescriptionAI(form.title);
+      return api.ai.generateDescriptionAI(form.title);
     },
     mutationKey: ["ai", "generateDescription", form?.title],
     onSuccess: (description) => {
@@ -43,12 +48,15 @@ export const DescriptionInput = ({
         setShowAnimation(false);
       }
     },
+    onError: () => {
+      setShowAnimation(false);
+    },
   });
 
   return (
     <>
       {/* <Fade in={showAnimation} timeout={3000}> */}
-      <Modal open={showAnimation}>
+      <Dialog open={showAnimation}>
         {/* <Box
             sx={{
               display: "flex",
@@ -63,10 +71,10 @@ export const DescriptionInput = ({
           src={"https://c.tenor.com/z5JHNdc3h5IAAAAC/tenor.gif"}
         />
         {/* </Box> */}
-      </Modal>
+      </Dialog>
       {/* </Fade> */}
 
-      {form?.title && (
+      {data === true && form?.title && (
         <Box display="flex" width="100%" justifyContent="flex-end">
           <Button
             onClick={() => {

@@ -71,3 +71,4 @@ filesystem/*
 .env
 db/recipes_backup-16-10-2024
 dotnet/ApplicationPlayground/appsettings.Development.json
+dotnet/ApplicationPlayground/appsettings.json

@@ -24,7 +24,7 @@ export const LoginPage = () => {
         throw new Error("User cannot be null here ");
       }
 
-      return api.postUser({ userName: form.userName, email: form.email });
+      return api.users.postUser({ userName: form.userName, email: form.email });
     },
     onSuccess: (response) => {
       navigate("/");

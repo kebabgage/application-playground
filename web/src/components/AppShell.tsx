@@ -111,7 +111,7 @@ export const AppShell = () => {
         throw new Error("We can't fetch without an email set...");
       }
 
-      return api.getUser(currentUser.email);
+      return api.users.getUser(currentUser.email);
     },
 
     queryKey: ["user", `email=${currentUser?.email}}`],
