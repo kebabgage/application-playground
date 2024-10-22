@@ -10,6 +10,8 @@ import { RecipePage } from "./pages/RecipePage";
 import { theme } from "./util/theme";
 import React from "react";
 import { SearchPage } from "./pages/SearchPage";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { FavouritesPage } from "./pages/FavouritesPage";
 
 const queryClient = new QueryClient();
 
@@ -95,10 +97,20 @@ function App() {
         </PageWrapper>
       ),
     },
+    {
+      path: "/favourites",
+      element: (
+        <PageWrapper>
+          <FavouritesPage />
+        </PageWrapper>
+      ),
+    },
   ]);
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen />
+
       <ThemeProvider theme={theme}>
         {/* <PageWrapper> */}
         <RouterProvider router={router} />

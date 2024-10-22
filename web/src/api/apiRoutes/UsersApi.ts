@@ -1,4 +1,4 @@
-import { User } from "../../hooks/useUser";
+import { User } from "../../hooks/useCurrentUser";
 import { getHost } from "../util";
 
 export class UsersApi {
@@ -14,6 +14,27 @@ export class UsersApi {
           "Content-Type": "application/json",
         },
       });
+      return response.json();
+    } catch (error) {
+      throw new Error("!!");
+    }
+  }
+
+  async updateUser(user: Partial<User>) {
+    const body = JSON.stringify(user);
+
+    console.log(body);
+
+    try {
+      const response = await fetch(`${getHost()}/users`, {
+        method: "PUT",
+        body: body,
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      });
+
       return response.json();
     } catch (error) {
       throw new Error("!!");
@@ -49,7 +70,16 @@ export class UsersApi {
     }
   }
 
-  async getUser(email: string): Promise<User> {
+  async getUser(id: number): Promise<User> {
+    try {
+      const response = await fetch(`${getHost()}/users/${id}`);
+      return response.json();
+    } catch (error) {
+      throw new Error("Something went wrong");
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User> {
     try {
       const response = await fetch(`${getHost()}/users/email=${email}`);
       return response.json();

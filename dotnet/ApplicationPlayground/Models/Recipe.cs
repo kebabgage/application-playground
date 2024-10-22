@@ -16,4 +16,6 @@ public class Recipe
 
     public string ImageUrl { get; set; }
 
+    public string[]? FavouritedBy { get; set; }
+
 }

@@ -27,8 +27,6 @@ export const DescriptionInput = ({
   const [showAnimation, setShowAnimation] = useState(false);
   const { data } = useIsAiEnabled();
 
-  console.log(data);
-
   const mutation = useMutation({
     mutationFn: () => {
       if (form?.title === undefined) {

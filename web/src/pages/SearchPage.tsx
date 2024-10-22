@@ -7,7 +7,8 @@ import { useDebounceValue } from "usehooks-ts";
 import { useNavigate } from "react-router-dom";
 import { SearchResults } from "../components/search/SearchResults";
 import { Filter } from "../components/search/Filter";
-import { User } from "../hooks/useUser";
+import { User } from "../hooks/useCurrentUser";
+import { PageWrapper } from "./util/PageWrapper";
 
 export const SearchPage = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -23,10 +24,11 @@ export const SearchPage = () => {
         return [];
       }
 
-      return api.recipes.searchRecipes(
-        debouncedSearch,
-        usersFilter.map((u) => u.email)
-      );
+      const filter: string[] = usersFilter
+        .map((u) => u?.email ?? "")
+        .filter((u) => u !== "");
+
+      return api.recipes.searchRecipes(debouncedSearch, filter);
     },
     queryKey: [
       "recipes",
@@ -38,22 +40,7 @@ export const SearchPage = () => {
   });
 
   return (
-    <Box
-      height="100%"
-      width="100%"
-      sx={{
-        height: "100%",
-        margin: "5%",
-        width: "95%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignContent: "center",
-        gap: 2,
-        paddingBottom: 5,
-        alignItems: "center",
-      }}
-    >
+    <PageWrapper>
       <Typography variant="h4">Search For Recipes</Typography>
       <Box
         sx={{
@@ -85,7 +72,6 @@ export const SearchPage = () => {
         <Filter
           values={usersFilter}
           onChange={(newValues) => {
-            console.log(newValues);
             setUserFilter(newValues);
           }}
         />
@@ -110,6 +96,6 @@ export const SearchPage = () => {
           searchValue={searchValue}
         />
       </Box>
-    </Box>
+    </PageWrapper>
   );
 };

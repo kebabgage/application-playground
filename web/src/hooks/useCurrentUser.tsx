@@ -3,14 +3,14 @@ import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 export interface User {
-  email: string;
+  id?: number;
+  email?: string;
   userName?: string;
   profileImage?: string;
   lastLoggedIn?: Date;
+  firstName?: string;
+  lastName?: string;
 }
 
-const currentUserAtom = atomWithStorage<Pick<User, "email"> | null>(
-  "user",
-  null
-);
+const currentUserAtom = atomWithStorage<Pick<User, "id"> | null>("user", null);
 export const useCurrentUser = () => useAtom(currentUserAtom);

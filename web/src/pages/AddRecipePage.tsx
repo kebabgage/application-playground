@@ -19,7 +19,7 @@ import { IngredientsInput } from "../components/recipeForm/IngredientsInput";
 import { MethodInput } from "../components/recipeForm/MethodInput";
 import { RecipeTitleForm } from "../components/recipeForm/TitleInput";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
-import { useCurrentUser } from "../hooks/useUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useGetUser } from "../hooks/useGetUser";
 
 const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
@@ -42,7 +42,7 @@ export interface FormErrorValues {
 export const AddRecipePage = () => {
   const isSmallScreen = useIsSmallScreen();
   const [currentUser, setUser] = useCurrentUser();
-  const { data: user } = useGetUser(currentUser?.email);
+  const { data: user } = useGetUser(currentUser?.id);
 
   const queryClient = useQueryClient();
   const api = getApi();
@@ -121,7 +121,6 @@ export const AddRecipePage = () => {
   };
 
   const handleNextStep = (newStepNumber: number) => {
-    console.log(form);
     // Check validation
     const formValid = validate(newStepNumber);
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApplicationPlayground.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241019141450_Favourites-2")]
+    partial class Favourites2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,9 +31,6 @@ namespace ApplicationPlayground.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateFavourited")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RecipeId")
                         .HasColumnType("integer");
@@ -58,9 +58,6 @@ namespace ApplicationPlayground.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string[]>("FavouritedBy")
-                        .HasColumnType("text[]");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -97,14 +94,8 @@ namespace ApplicationPlayground.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("LastLoggedIn")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text");
 
                     b.Property<string>("ProfileImage")
                         .HasColumnType("text");

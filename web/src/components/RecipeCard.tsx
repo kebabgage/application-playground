@@ -1,43 +1,14 @@
-import { Box, Card, Typography, useTheme } from "@mui/material";
+import { Badge, Box, Card, Typography, useTheme } from "@mui/material";
 import { Recipe } from "../types/Recipe";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { Avatar } from "./Avatar";
 import { Highlighted } from "./search/Highlighted";
 import { ListContains } from "./search/ListContains";
+import { Favorite } from "@mui/icons-material";
 
-function stringToColor(string: string) {
-  let hash = 0;
-  let i;
-
-  /* eslint-disable no-bitwise */
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  let color = "#";
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-  /* eslint-enable no-bitwise */
-
-  return color;
-}
-
-function stringAvatar(name: string) {
-  return {
-    sx: {
-      bgcolor: stringToColor(name),
-      height: "20px",
-      width: "20px",
-      alignItems: "center",
-      marginRight: 0.5,
-      fontSize: "0.75rem",
-    },
-    children: `${name[0].toUpperCase()}`,
-  };
-}
+const FavouriteIcon = () => {
+  return <Favorite />;
+};
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -75,6 +46,7 @@ export const RecipeCard = ({
           cursor: "pointer",
         },
         padding: 1,
+        width: "100%",
       }}
     >
       <Box>
@@ -85,7 +57,12 @@ export const RecipeCard = ({
             justifyContent: "space-between",
           }}
         >
-          <Typography variant="h6">{RecipeTitle}</Typography>
+          <Box>
+            {recipe.favouritedBy?.map((f) => (
+              <Favorite />
+            ))}
+            <Typography variant="h6">{RecipeTitle}</Typography>
+          </Box>
           {recipe.user !== null && (
             <Box
               sx={{

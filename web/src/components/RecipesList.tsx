@@ -16,19 +16,7 @@ export const RecipesList = () => {
   const { data, isLoading } = useQuery({ queryFn, queryKey: ["recipe"] });
 
   return (
-    <Box
-      sx={{
-        height: "100%",
-        margin: "5%",
-        width: "95%", // isSmallScreen ? "60%" : "70%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignContent: "center",
-        gap: 2,
-        paddingBottom: 2,
-      }}
-    >
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Button
           size="large"

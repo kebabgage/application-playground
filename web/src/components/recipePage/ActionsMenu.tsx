@@ -1,11 +1,12 @@
 import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { User } from "../../hooks/useUser";
+import { useCurrentUser, User } from "../../hooks/useCurrentUser";
 import { Avatar } from "../Avatar";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { MoreHoriz } from "@mui/icons-material";
 import { useState } from "react";
 import { DeleteModal } from "../DeleteModal";
 import { Recipe } from "../../types/Recipe";
+import { AddToFavouritesButton } from "./AddToFavouritesButton";
 
 interface ActionsHeadingProps {
   recipe: Recipe;
@@ -14,7 +15,7 @@ interface ActionsHeadingProps {
 export const ActionsHeading = ({ recipe }: ActionsHeadingProps) => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const user = recipe.user;
+  // const user = recipe.user;
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -76,15 +77,13 @@ export const ActionsHeading = ({ recipe }: ActionsHeadingProps) => {
               fontWeight="medium"
               sx={{ display: "inline", fontStyle: "normal" }}
             >
-              {" " + (user.userName ?? "Unknown")}
+              {" " + (recipe.user.userName ?? "Unknown")}
             </Typography>
           </Typography>
-          <Avatar user={user} size="medium" />
+          <Avatar user={recipe.user} size="medium" />
         </Box>
         <Box display="flex" flexDirection="row">
-          <IconButton disabled aria-label="add an alarm">
-            <FavoriteBorderIcon />
-          </IconButton>
+          <AddToFavouritesButton user={recipe.user} recipe={recipe} />
           <IconButton
             onClick={handleMenu}
             // color="primary"

@@ -4,7 +4,7 @@ import { getHost } from "../util";
 export class RecipesApi {
   async getRecipes(): Promise<Recipe[]> {
     try {
-      const response = await fetch(`${getHost()}/recipe`);
+      const response = await fetch(`${getHost()}/recipes`);
       return await response.json();
     } catch (error) {
       throw new Error("");
@@ -13,7 +13,7 @@ export class RecipesApi {
 
   async getRecipe(id: number): Promise<Recipe> {
     try {
-      const response = await fetch(`${getHost()}/recipe/${id}`);
+      const response = await fetch(`${getHost()}/recipes/${id}`);
       if (!response.ok) {
         throw new Error("Not 2xx response", { cause: response });
       }
@@ -24,7 +24,7 @@ export class RecipesApi {
   }
 
   async postRecipe(recipe: Recipe): Promise<Recipe> {
-    const response = await fetch(`${getHost()}/recipe`, {
+    const response = await fetch(`${getHost()}/recipes`, {
       method: "POST",
       body: JSON.stringify({
         Title: recipe.title,
@@ -46,7 +46,7 @@ export class RecipesApi {
 
   async deleteRecipe(id: number): Promise<void> {
     try {
-      const response = await fetch(`${getHost()}/recipe/${id}`, {
+      const response = await fetch(`${getHost()}/recipes/${id}`, {
         method: "DELETE",
       });
 
@@ -61,7 +61,7 @@ export class RecipesApi {
     filter: string[]
   ): Promise<Recipe[]> {
     try {
-      const response = await fetch(`${getHost()}/recipe/search/`, {
+      const response = await fetch(`${getHost()}/recipes/search/`, {
         method: "POST",
         headers: {
           Accept: "*/*",

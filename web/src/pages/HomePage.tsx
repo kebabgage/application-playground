@@ -1,23 +1,22 @@
-import { Box } from "@mui/material";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { RecipesList } from "../components/RecipesList";
-import { useCountry } from "../hooks/useCountry";
-import { useCurrentUser } from "../hooks/useUser";
+import { useGetUser } from "../hooks/useGetUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
+import { Heading, RecipeHeading } from "./util/PageHeading";
+import { PageWrapper } from "./util/PageWrapper";
 
 export const HomePage = () => {
-  const [user] = useCurrentUser();
+  const [currentUser] = useCurrentUser();
+  const { data: user } = useGetUser(currentUser?.id);
 
-  if (user === null) {
+  if (currentUser?.id === undefined || currentUser == null) {
     return <Navigate to={"/login"} />;
   }
 
   return (
-    <Box
-      height="100%"
-      width="100%"
-      sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
+    <PageWrapper>
+      <Heading>Welcome, {user?.userName}, to your family cookbook</Heading>
       <RecipesList />
-    </Box>
+    </PageWrapper>
   );
 };

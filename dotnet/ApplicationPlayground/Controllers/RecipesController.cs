@@ -14,9 +14,24 @@ public class SearchParameters
 public static class RecipesController
 {
 
-    private static List<Recipe> GetRecipes(AppDbContext dbContext)
+    private static async Task<IResult> GetRecipes(AppDbContext dbContext)
     {
-        return dbContext.Recipes.Include(r => r.User).OrderBy(r => r.Id).ToList();
+        var recipes = dbContext.Recipes.Include(r => r.User).OrderBy(r => r.Id).ToList();
+
+        // foreach (var r in recipes)
+        // {
+        //     var favourites = await dbContext.Favourites.Where(f => f.Recipe.Id == r.Id).Include(f => f.User).ToListAsync();
+        //     List<string> favouritedBy = [];
+        //     foreach (var f in favourites)
+        //     {
+        //         favouritedBy.Add(f.User.UserName);
+        //     }
+
+        //     r.FavouritedBy = favouritedBy.ToArray();
+        // }
+
+        return Results.Ok(recipes);
+
     }
 
     private static async Task<IResult> GetRecipe(int id, AppDbContext dbContext)
@@ -24,6 +39,36 @@ public static class RecipesController
         var recipe = await dbContext.Recipes.Include(r => r.User).FirstOrDefaultAsync(i => i.Id == id);
 
         if (recipe is null) return Results.NotFound(id);
+
+        // var favourites = await dbContext.Favourites.Where(f => f.Recipe.Id == recipe.Id).Include(f => f.User).ToListAsync();
+        // var favouritesCount = dbContext.Favourites.Where(f => f.Recipe.Id == recipe.Id).Count();
+
+        // Console.WriteLine($"Favouted {favouritesCount} times");
+
+        // if (favourites != null)
+        // {
+        //     Console.WriteLine("Not null");
+        //     foreach (var f in favourites)
+        //     {
+        //         Console.WriteLine(f.User.UserName);
+        //     }
+
+        //     List<string> favouritedBy = [];
+        //     foreach (var f in favourites)
+        //     {
+        //         favouritedBy.Add(f.User.UserName);
+        //     }
+
+        //     recipe.FavouritedBy = favouritedBy.ToArray();
+
+
+        // }
+
+        // foreach (var f in favourites)
+        // {
+        //     Console.WriteLine($"faveed by {f.User.UserName}");
+        // }
+
 
         return Results.Ok(recipe);
     }
@@ -139,7 +184,7 @@ public static class RecipesController
     public static void RegisterRecipesEndpoints(this WebApplication app)
     {
 
-        var recipes = app.MapGroup("/recipe");
+        var recipes = app.MapGroup("/recipes");
 
         recipes.MapGet("/", GetRecipes);
         recipes.MapGet("/{id}", GetRecipe);

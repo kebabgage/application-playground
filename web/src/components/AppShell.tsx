@@ -18,7 +18,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import { useCountry } from "../hooks/useCountry";
-import { useCurrentUser } from "../hooks/useUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getApi } from "../api/Api";
@@ -28,6 +28,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import HomeIcon from "@mui/icons-material/Home";
+import { useGetUser } from "../hooks/useGetUser";
 
 const getIcon = (name: string) => {
   switch (name) {
@@ -105,17 +106,7 @@ export const AppShell = () => {
 
   const api = getApi();
 
-  const { data: userInfo } = useQuery({
-    queryFn: () => {
-      if (currentUser?.email === undefined) {
-        throw new Error("We can't fetch without an email set...");
-      }
-
-      return api.users.getUser(currentUser.email);
-    },
-
-    queryKey: ["user", `email=${currentUser?.email}}`],
-  });
+  const { data: userInfo } = useGetUser(currentUser?.id);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

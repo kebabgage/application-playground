@@ -1,22 +1,111 @@
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Box, CircularProgress, Input, Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
 import { getApi } from "../api/Api";
 import { stringToColor } from "../components/Avatar";
-import { useCurrentUser } from "../hooks/useUser";
-import { LoadingButton } from "@mui/lab";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser, User } from "../hooks/useCurrentUser";
 import { useGetUser } from "../hooks/useGetUser";
+import { SubHeading } from "./util/PageHeading";
+import { PageWrapper } from "./util/PageWrapper";
+
+const getUserAttribute = (
+  userId: number,
+  attribute: string,
+  value?: string
+): Partial<User> => {
+  const user: Partial<User> = { id: userId };
+
+  switch (attribute) {
+    case "Email":
+      return { email: value, ...user };
+    case "First Name":
+      return { firstName: value, ...user };
+    case "Last Name":
+      return { lastName: value, ...user };
+    case "Username":
+      return { userName: value, ...user };
+    default:
+      throw new Error("We can't handle this...");
+  }
+};
+
+interface AttributeFormProps {
+  attribute: string;
+  initialValue?: string;
+  setLoading: (loading: boolean) => void;
+}
+
+const AttributeForm = ({
+  attribute,
+  initialValue,
+  setLoading,
+}: AttributeFormProps) => {
+  const [currentUser, setCurrentUser] = useCurrentUser();
+  const { data: user } = useGetUser(currentUser?.id);
+  const queryClient = useQueryClient();
+
+  const [currentValue, setCurrentValue] = useState(initialValue);
+  const api = getApi();
+
+  const { mutate } = useMutation({
+    mutationFn: () => {
+      setLoading(true);
+      console.log("called");
+      if (user?.id === undefined || user?.id === null) {
+        throw new Error("Can't update user without id...");
+      }
+
+      const request = getUserAttribute(user.id, attribute, currentValue);
+
+      if (request === null) {
+        throw new Error("The field is not mapped properly");
+      }
+
+      return api.users.updateUser(request);
+    },
+    onSuccess: (user) => {
+      console.log(user);
+      setCurrentUser(user);
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+
+      setLoading(false);
+    },
+  });
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 3,
+        alignItems: "center",
+      }}
+    >
+      <Typography width="30%" fontWeight="bold">
+        {attribute}
+      </Typography>
+      <Input
+        value={currentValue || ""}
+        onChange={(event) => setCurrentValue(event.target.value)}
+        onBlur={() => (initialValue === currentValue ? undefined : mutate())}
+      />
+    </Box>
+  );
+};
 
 export const ProfilePage = () => {
-  const [currentUser, setCurrentUser] = useCurrentUser();
-  const { data: user, isLoading } = useGetUser(currentUser?.email);
+  const [currentUser] = useCurrentUser();
+  const { data: user, isLoading } = useGetUser(currentUser?.id);
 
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+
+  const [valuesLoading, setValuesLoading] = useState(false);
 
   const api = getApi();
   const [newImage, setNewImage] = useState<Blob>();
@@ -24,7 +113,7 @@ export const ProfilePage = () => {
   const { mutate } = useMutation({
     mutationFn: (image2: Blob | undefined) => {
       if (image2 === undefined) {
-        console.log("sorry! Image is not defined");
+        console.error("sorry! Image is not defined");
       }
       return api.images.postImage(image2);
     },
@@ -71,23 +160,18 @@ export const ProfilePage = () => {
     }
   };
 
-  if (currentUser === null) {
-    return <Navigate to={"/login"} />;
-  }
-
   if (user === undefined || isLoading) {
     return <CircularProgress />;
   }
 
+  console.log(user);
+
+  if (currentUser === null || currentUser.id === undefined) {
+    // return <Navigate to={"/login"} />;
+  }
+
   return (
-    <Box
-      height="100%"
-      margin="5%"
-      display="flex"
-      flexDirection="column"
-      alignContent="center"
-      flexWrap="wrap"
-    >
+    <PageWrapper>
       <Typography
         variant="h4"
         sx={{ paddingBottom: 2 }}
@@ -128,7 +212,7 @@ export const ProfilePage = () => {
                 ? URL.createObjectURL(newImage)
                 : user.profileImage
                 ? api.images.getImageUrl(user.profileImage)
-                : ""
+                : undefined
             }
           />
         </Box>
@@ -152,6 +236,44 @@ export const ProfilePage = () => {
           />
         </LoadingButton>
       </Box>
-    </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          <SubHeading>About You </SubHeading>
+          {valuesLoading && (
+            <CircularProgress
+              size="1.25rem"
+              // sx={{ height: "1.25rem", width: "1.25rem" }}
+            />
+          )}
+        </Box>
+        <AttributeForm
+          attribute="Username"
+          initialValue={user.userName}
+          setLoading={setValuesLoading}
+        />
+        <AttributeForm
+          attribute="First Name"
+          initialValue={user.firstName}
+          setLoading={setValuesLoading}
+        />
+        <AttributeForm
+          attribute="Last Name"
+          initialValue={user.lastName}
+          setLoading={setValuesLoading}
+        />
+        <AttributeForm
+          attribute="Email"
+          initialValue={user.email}
+          setLoading={setValuesLoading}
+        />
+      </Box>
+    </PageWrapper>
   );
 };

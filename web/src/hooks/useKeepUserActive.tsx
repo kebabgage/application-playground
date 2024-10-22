@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { minutesToMilliseconds } from "date-fns";
 import { useCallback, useEffect } from "react";
 import { getApi } from "../api/Api";
-import { User } from "./useUser";
+import { User } from "./useCurrentUser";
 
 export const useKeepUserActive = (user: User | null) => {
   const queryClient = useQueryClient();
@@ -13,7 +13,7 @@ export const useKeepUserActive = (user: User | null) => {
       throw new Error("Can't log in user that doesn't have username or email");
     }
 
-    return api.users.postUser({ email: user.email });
+    return api.users.postUser({ id: user.id });
   }, [api, user]);
 
   const { mutate } = useMutation({

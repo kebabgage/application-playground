@@ -11,4 +11,8 @@ public class User
     public DateTime LastLoggedIn { get; set; }
 
     public string? ProfileImage { get; set; }
+
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
 }

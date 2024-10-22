@@ -16,6 +16,7 @@ public static class UsersController
         users.MapGet("/email={email}", GetUserByEmail);
         users.MapPost("/", CreateUser);
         users.MapDelete("/{id}", DeleteUser);
+        users.MapPut("/", UpdateUser);
     }
 
     private static List<User> GetUsers(AppDbContext dbContext)
@@ -82,6 +83,44 @@ public static class UsersController
             await dbContext.SaveChangesAsync();
             return Results.Created($"/users/{user.Id}", userExists);
         }
+    }
+
+    private static async Task<IResult> UpdateUser(User user, AppDbContext dbContext)
+    {
+        // Check if we already have someone with this user 
+        var userExists = await dbContext.Users.FindAsync(user.Id);
+
+        if (userExists == null)
+        {
+            return Results.NotFound();
+        }
+
+        if (user.Email != null && user.Email != "")
+        {
+            userExists.Email = user.Email;
+        }
+
+        if (user.FirstName != null && user.FirstName != "")
+        {
+            userExists.FirstName = user.FirstName;
+        }
+
+        if (user.LastName != null && user.LastName != "")
+        {
+            userExists.LastName = user.LastName;
+        }
+
+        if (user.UserName != null && user.UserName != "")
+        {
+            userExists.UserName = user.UserName;
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        // Fetch the user 
+        var fetchedUser = await dbContext.Users.FindAsync(user.Id);
+
+        return Results.Ok(fetchedUser);
     }
 
     private static async Task<IResult> DeleteUser(int id, AppDbContext dbContext)

@@ -108,6 +108,7 @@ app.RegisterUsersEndpoints();
 app.RegisterRecipesEndpoints();
 app.RegisterAiEndpoints();
 app.RegisterImageEndPoints();
+app.RegisterFavouritesEndpoints();
 
 
 app.Run();

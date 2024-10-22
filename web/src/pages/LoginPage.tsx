@@ -1,7 +1,7 @@
 import { Alert, Box, Button, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
-import { User, useCurrentUser } from "../hooks/useUser";
+import { User, useCurrentUser } from "../hooks/useCurrentUser";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { getApi } from "../api/Api";
@@ -10,7 +10,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const api = getApi();
 
-  const [user, setUser] = useCurrentUser();
+  const [currentUser, setCurrentUser] = useCurrentUser();
   const [form, setForm] = useImmer<User>({
     userName: "",
     email: "",
@@ -26,10 +26,13 @@ export const LoginPage = () => {
 
       return api.users.postUser({ userName: form.userName, email: form.email });
     },
-    onSuccess: (response) => {
-      navigate("/");
+    onSuccess: (loggedInUser: User) => {
+      console.log(loggedInUser);
+      if (loggedInUser.id) {
+        setCurrentUser({ id: loggedInUser.id });
+      }
 
-      setUser(form);
+      navigate("/");
     },
   });
 
@@ -47,7 +50,7 @@ export const LoginPage = () => {
     // navigate("/");
   };
 
-  if (user !== null) {
+  if (currentUser !== null && currentUser.id !== undefined) {
     return <Navigate to="/" />;
   }
 

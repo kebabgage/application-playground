@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Recipe } from "../types/Recipe";
-import { useCurrentUser } from "../hooks/useUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { Avatar } from "./Avatar";
 import { getApi } from "../api/Api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -26,7 +26,7 @@ interface DeleteModalProps {
 export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
   const [currentUser, setCurrentUser] = useCurrentUser();
   const queryClient = useQueryClient();
-  const { data: user, isLoading } = useGetUser(currentUser?.email);
+  const { data: user, isLoading } = useGetUser(currentUser?.id);
   const navigate = useNavigate();
 
   const api = getApi();
@@ -56,7 +56,7 @@ export const DeleteModal = ({ recipe, open, setOpen }: DeleteModalProps) => {
   }
 
   let content;
-  if (currentUser?.email !== recipe.user.email) {
+  if (currentUser?.id !== recipe.user.id) {
     content = (
       <>
         <DialogTitle>Did you make this recipe?</DialogTitle>

@@ -14,6 +14,7 @@ import { DeleteModal } from "../components/DeleteModal";
 import { ActionsHeading } from "../components/recipePage/ActionsMenu";
 import { RecipeDescription } from "../components/recipePage/Description";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
+import { PageWrapper } from "./util/PageWrapper";
 
 const RecipeHeading = styled(Typography)({
   borderBottom: "solid green",
@@ -125,15 +126,6 @@ export const RecipePage = () => {
     refetchInterval: 60000,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: () => {
-      return api.recipes.deleteRecipe(id);
-    },
-    onSuccess: () => {
-      navigate("/");
-    },
-  });
-
   if (isError) {
     return (
       <Box
@@ -159,84 +151,75 @@ export const RecipePage = () => {
   }
 
   return (
-    <>
+    <PageWrapper>
+      <DeleteModal
+        open={deleteModalOpen}
+        setOpen={setDeleteModalOpen}
+        recipe={recipe}
+      />
       <Box
-        height="100%"
+        display="flex"
+        flexDirection="row"
+        paddingX={3}
+        paddingBottom={3}
+        width="100%"
+      >
+        <RecipeHeading width="75%" flexGrow={2} variant="h4">
+          {recipe?.title}
+        </RecipeHeading>
+      </Box>
+      <Box
+        width="100%"
+        display="flex"
+        flexDirection={"column"}
+        paddingX={3}
+        gap={2}
+      >
+        <RecipeDescription description={recipe.description} />
+        <ActionsHeading recipe={recipe} />
+        {recipe.imageUrl !== undefined && recipe.imageUrl !== "" && (
+          <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
+            <img
+              alt={recipe.title + "image"}
+              src={api.images.getImageUrl(recipe.imageUrl)}
+              // height="90%"
+              width="100%"
+              height="100%"
+              style={{ borderRadius: "5px" }}
+            />
+          </Box>
+        )}
+      </Box>
+
+      {/* Ingredients and Method  */}
+      <Box
         width="100%"
         sx={{
-          height: "100%",
-          margin: "5%",
-          width: "95%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "flex-start",
-          alignContent: "center",
-          gap: 2,
-          paddingBottom: 5,
+          paddingX: 3,
+          gap: 4,
+          paddingBottom: 3,
         }}
       >
-        <DeleteModal
-          open={deleteModalOpen}
-          setOpen={setDeleteModalOpen}
-          recipe={recipe}
-        />
-        <Box
-          display="flex"
-          flexDirection="row"
-          paddingX={3}
-          paddingBottom={3}
-          // width="75%"
-        >
-          <RecipeHeading width="75%" flexGrow={2} variant="h4">
-            {recipe?.title}
+        <Box>
+          <RecipeHeading
+            sx={{ borderBottom: "solid green", width: "100%" }}
+            variant="h3"
+          >
+            Ingredients
           </RecipeHeading>
+          {recipe?.ingredients.map((ingredient, index) => (
+            <IngredientItem ingredient={ingredient} />
+          ))}
         </Box>
-        <Box display="flex" flexDirection={"column"} paddingX={3} gap={2}>
-          <RecipeDescription description={recipe.description} />
-          <ActionsHeading recipe={recipe} />
-          {recipe.imageUrl !== undefined && recipe.imageUrl !== "" && (
-            <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
-              <img
-                alt={recipe.title + "image"}
-                src={api.images.getImageUrl(recipe.imageUrl)}
-                // height="90%"
-                width="100%"
-                height="100%"
-                style={{ borderRadius: "5px" }}
-              />
-            </Box>
-          )}
-        </Box>
-
-        {/* Ingredients and Method  */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            paddingX: 3,
-            gap: 4,
-            paddingBottom: 3,
-          }}
-        >
-          <Box>
-            <RecipeHeading
-              sx={{ borderBottom: "solid green", width: "100%" }}
-              variant="h3"
-            >
-              Ingredients
-            </RecipeHeading>
-            {recipe?.ingredients.map((ingredient, index) => (
-              <IngredientItem ingredient={ingredient} />
-            ))}
-          </Box>
-          <Box>
-            <RecipeHeading variant="h3">Method</RecipeHeading>
-            {recipe?.methodSteps.map((step, index) => (
-              <MethodStep step={step} index={index} />
-            ))}
-          </Box>
+        <Box>
+          <RecipeHeading variant="h3">Method</RecipeHeading>
+          {recipe?.methodSteps.map((step, index) => (
+            <MethodStep step={step} index={index} />
+          ))}
         </Box>
       </Box>
-    </>
+    </PageWrapper>
   );
 };
