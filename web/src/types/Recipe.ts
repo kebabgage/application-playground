@@ -1,5 +1,4 @@
-import { User } from "../hooks/useCurrentUser";
-
+import { User } from "./User";
 export interface Recipe {
   id?: number;
   title: string;
@@ -10,4 +9,5 @@ export interface Recipe {
   imageUrl: string;
   user: User;
   favouritedBy?: string[];
+  isArchived?: boolean;
 }

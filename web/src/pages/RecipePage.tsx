@@ -5,6 +5,7 @@ import {
   CircularProgress,
   styled,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -15,6 +16,7 @@ import { ActionsHeading } from "../components/recipePage/ActionsMenu";
 import { RecipeDescription } from "../components/recipePage/Description";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { PageWrapper } from "./util/PageWrapper";
+import { getRecipeQueryKey } from "../api/util";
 
 const RecipeHeading = styled(Typography)({
   borderBottom: "solid green",
@@ -92,6 +94,7 @@ export const RecipePage = () => {
   const isSmallScreen = useIsSmallScreen();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const theme = useTheme();
 
   const background = "#95D2B3";
   const underline = "#87A2FF";
@@ -122,7 +125,7 @@ export const RecipePage = () => {
     isPending,
   } = useQuery({
     queryFn,
-    queryKey: ["recipes", search.get("id")],
+    queryKey: getRecipeQueryKey(search.get("id") ?? undefined),
     refetchInterval: 60000,
   });
 
@@ -166,6 +169,19 @@ export const RecipePage = () => {
       >
         <RecipeHeading width="75%" flexGrow={2} variant="h4">
           {recipe?.title}
+          {recipe.isArchived === true ? (
+            <span
+              style={{
+                color:
+                  recipe.isArchived === true
+                    ? theme.palette.grey[500]
+                    : "textPrimary",
+                fontStyle: "italic",
+              }}
+            >
+              {"  "}(archived)
+            </span>
+          ) : null}
         </RecipeHeading>
       </Box>
       <Box

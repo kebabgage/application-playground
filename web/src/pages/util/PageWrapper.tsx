@@ -26,8 +26,9 @@ export const PageWrapper = ({ children }: PageWrapperProps) => {
       width="100%"
       sx={{
         height: "100%",
-        margin: "5%",
-        marginTop: "2%",
+        // margin: "5%",
+        // marginTop: "2%",
+        paddingTop: "2%",
         width: "95%",
         display: "flex",
         flexDirection: "column",
@@ -35,6 +36,7 @@ export const PageWrapper = ({ children }: PageWrapperProps) => {
         alignContent: "center",
         gap: 2,
         paddingBottom: 5,
+        marginBottom: 5,
         // From SearchPage.tsx
         alignItems: "center",
       }}

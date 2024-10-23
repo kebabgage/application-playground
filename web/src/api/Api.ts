@@ -1,5 +1,3 @@
-import { User } from "../hooks/useCurrentUser";
-import { Recipe } from "../types/Recipe";
 import { AiApi } from "./apiRoutes/AiApi";
 import { FavouritesApi } from "./apiRoutes/FavouritesApi";
 import { ImagesApi } from "./apiRoutes/ImagesApi";

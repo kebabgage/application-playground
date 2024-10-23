@@ -1,16 +1,8 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  Menu,
-  MenuItem,
-  Typography,
-} from "@mui/material";
-import { User } from "../../hooks/useCurrentUser";
-import { useState } from "react";
+import { Button, Checkbox, Chip, Menu, MenuItem } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { getApi } from "../../api/Api";
+import { User } from "../../types/User";
 
 interface FilterProps {
   values: User[];

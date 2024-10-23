@@ -1,10 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { getApi } from "../api/Api";
-import { useGetUser } from "../hooks/useGetUser";
-import { useCurrentUser, User } from "../hooks/useCurrentUser";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { Box, Typography, useTheme } from "@mui/material";
-import { RecipeCard } from "../components/RecipeCard";
-import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import {
   differenceInDays,
   format,
@@ -14,11 +10,17 @@ import {
   isToday,
   isYesterday,
 } from "date-fns";
+import { orderBy } from "lodash";
+import { useNavigate } from "react-router-dom";
+import { getApi } from "../api/Api";
+import { RecipeCard } from "../components/RecipeCard";
+import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useGetUser } from "../hooks/useGetUser";
 import { Recipe } from "../types/Recipe";
-import { orderBy, sortBy } from "lodash";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import { User } from "../types/User";
+import { EmptyFavouritesContent } from "./util/PageEmpty";
+import { Heading, RecipeHeading, SubHeading } from "./util/PageHeading";
 import { PageWrapper } from "./util/PageWrapper";
-import { Heading, SubHeading } from "./util/PageHeading";
 
 function getRelativeDate(date: Date) {
   const today = new Date();
@@ -96,20 +98,28 @@ export const FavouritesPage = () => {
     queryKey: ["favourites", user?.userName],
   });
 
-  if (data === undefined) {
+  const formattedData = data !== undefined ? groupByDate(data, "desc") : [];
+
+  if (formattedData.length === 0) {
     return (
-      <Typography>
-        There aren't any recipes here. Maybe go and use the site
-      </Typography>
+      <PageWrapper>
+        <RecipeHeading>
+          Hey <span style={{ fontStyle: "italic" }}>{user?.userName}</span>
+        </RecipeHeading>
+        <Typography variant="h5">Welcome your favourites</Typography>
+
+        <EmptyFavouritesContent />
+      </PageWrapper>
     );
   }
-
-  const formattedData = groupByDate(data, "desc");
 
   return (
     <PageWrapper>
       <Heading>Hey {user?.userName}</Heading>
-      <SubHeading>Here are your favourite recipes</SubHeading>
+      {formattedData.length !== 0 && (
+        <SubHeading>Here are your favourite recipes</SubHeading>
+      )}
+      {formattedData.length === 0 && <EmptyFavouritesContent />}
 
       {formattedData.map(({ day, recipes }) => {
         return (

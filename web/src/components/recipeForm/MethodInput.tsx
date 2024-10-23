@@ -30,7 +30,7 @@ export const MethodInput = ({
   // Update the actual ingredients list
   useEffect(() => {
     setForm((draft) => {
-      draft.ingredients = getListFromParagraph(paragraph);
+      draft.methodSteps = getListFromParagraph(paragraph);
     });
   }, [paragraph, setForm]);
 
@@ -83,7 +83,7 @@ export const MethodInput = ({
                 index === array.length - 1
               ) {
                 setForm((draft) => {
-                  draft.ingredients.push("");
+                  draft.methodSteps.push("");
                 });
 
                 event.preventDefault();

@@ -3,10 +3,11 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { useFavourited } from "../../hooks/useFavourited";
 import { getApi } from "../../api/Api";
 import { Recipe } from "../../types/Recipe";
-import { useCurrentUser, User } from "../../hooks/useCurrentUser";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Favorite } from "@mui/icons-material";
 import { useGetUser } from "../../hooks/useGetUser";
+import { User } from "../../types/User";
 
 const getQueryKey = () => {};
 

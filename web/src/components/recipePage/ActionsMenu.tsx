@@ -1,12 +1,22 @@
-import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { useCurrentUser, User } from "../../hooks/useCurrentUser";
-import { Avatar } from "../Avatar";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { MoreHoriz } from "@mui/icons-material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
-import { DeleteModal } from "../DeleteModal";
 import { Recipe } from "../../types/Recipe";
+import { Avatar } from "../Avatar";
+import { DeleteModal } from "../DeleteModal";
 import { AddToFavouritesButton } from "./AddToFavouritesButton";
+import { ArchiveRecipeMenuItem } from "./ArchiveRecipe";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
 interface ActionsHeadingProps {
   recipe: Recipe;
@@ -15,18 +25,20 @@ interface ActionsHeadingProps {
 export const ActionsHeading = ({ recipe }: ActionsHeadingProps) => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  // const user = recipe.user;
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = async (option: "Delete" | "Edit") => {
+  const handleClose = async (option: "Archive" | "Delete" | "Edit") => {
     setAnchorEl(null);
     switch (option) {
+      case "Archive":
+        setOpen(true);
+        break;
       case "Delete":
         setOpen(true);
-      // handleDeleteButtonClick();
+        break;
     }
   };
 
@@ -48,8 +60,23 @@ export const ActionsHeading = ({ recipe }: ActionsHeadingProps) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={() => handleClose("Edit")}>Edit Recipe</MenuItem>
-        <MenuItem onClick={() => handleClose("Delete")}>Delete Recipe</MenuItem>
+        <MenuItem onClick={() => handleClose("Edit")}>
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Edit</ListItemText>
+        </MenuItem>
+        <Divider />
+        <ArchiveRecipeMenuItem
+          handleClose={() => setAnchorEl(null)}
+          recipe={recipe}
+        />
+        <MenuItem onClick={() => handleClose("Delete")}>
+          <ListItemIcon>
+            <DeleteForeverIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Delete</ListItemText>
+        </MenuItem>
       </Menu>{" "}
       <Box
         sx={{

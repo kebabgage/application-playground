@@ -46,7 +46,7 @@ export const RecipeCard = ({
           cursor: "pointer",
         },
         padding: 1,
-        width: "100%",
+        // width: "100%",
       }}
     >
       <Box>
@@ -61,7 +61,22 @@ export const RecipeCard = ({
             {recipe.favouritedBy?.map((f) => (
               <Favorite />
             ))}
-            <Typography variant="h6">{RecipeTitle}</Typography>
+            <Typography variant="h6">
+              {RecipeTitle}{" "}
+              {recipe.isArchived ? (
+                <span
+                  style={{
+                    color:
+                      recipe.isArchived === true
+                        ? theme.palette.grey[500]
+                        : "textPrimary",
+                    fontStyle: "italic",
+                  }}
+                >
+                  (archived)
+                </span>
+              ) : null}
+            </Typography>
           </Box>
           {recipe.user !== null && (
             <Box

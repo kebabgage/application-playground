@@ -1,8 +1,9 @@
+import { Typography } from "@mui/material";
 import { Navigate } from "react-router-dom";
 import { RecipesList } from "../components/RecipesList";
-import { useGetUser } from "../hooks/useGetUser";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Heading, RecipeHeading } from "./util/PageHeading";
+import { useGetUser } from "../hooks/useGetUser";
+import { RecipeHeading } from "./util/PageHeading";
 import { PageWrapper } from "./util/PageWrapper";
 
 export const HomePage = () => {
@@ -15,7 +16,10 @@ export const HomePage = () => {
 
   return (
     <PageWrapper>
-      <Heading>Welcome, {user?.userName}, to your family cookbook</Heading>
+      <RecipeHeading>
+        Hey, <span style={{ fontStyle: "italic" }}>{user?.userName}</span>
+      </RecipeHeading>
+      <Typography variant="h5">Welcome your family cookbook</Typography>
       <RecipesList />
     </PageWrapper>
   );

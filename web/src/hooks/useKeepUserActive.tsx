@@ -2,8 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { minutesToMilliseconds } from "date-fns";
 import { useCallback, useEffect } from "react";
 import { getApi } from "../api/Api";
-import { User } from "./useCurrentUser";
-
+import { User } from "../types/User";
 export const useKeepUserActive = (user: User | null) => {
   const queryClient = useQueryClient();
   const api = getApi();

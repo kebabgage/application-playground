@@ -7,10 +7,11 @@ import imageCompression from "browser-image-compression";
 import { useState } from "react";
 import { getApi } from "../api/Api";
 import { stringToColor } from "../components/Avatar";
-import { useCurrentUser, User } from "../hooks/useCurrentUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useGetUser } from "../hooks/useGetUser";
 import { SubHeading } from "./util/PageHeading";
 import { PageWrapper } from "./util/PageWrapper";
+import { User } from "../types/User";
 
 const getUserAttribute = (
   userId: number,
@@ -71,7 +72,7 @@ const AttributeForm = ({
       console.log(user);
       setCurrentUser(user);
 
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
 
       setLoading(false);
     },
@@ -242,16 +243,12 @@ export const ProfilePage = () => {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            justifyContent: "center",
             gap: 3,
           }}
         >
           <SubHeading>About You </SubHeading>
-          {valuesLoading && (
-            <CircularProgress
-              size="1.25rem"
-              // sx={{ height: "1.25rem", width: "1.25rem" }}
-            />
-          )}
+          {valuesLoading && <CircularProgress size="1.25rem" />}
         </Box>
         <AttributeForm
           attribute="Username"

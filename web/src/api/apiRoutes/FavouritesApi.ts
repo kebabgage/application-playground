@@ -1,6 +1,6 @@
-import { User } from "../../hooks/useCurrentUser";
 import { Recipe } from "../../types/Recipe";
 import { getHost } from "../util";
+import { User } from "../../types/User";
 
 export class FavouritesApi {
   async addToFavourites(recipeId?: number, userId?: number) {

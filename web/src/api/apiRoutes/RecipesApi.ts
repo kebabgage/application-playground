@@ -78,4 +78,48 @@ export class RecipesApi {
       throw new Error("Error searching recipes" + error);
     }
   }
+
+  async getArchivedRecipes(): Promise<Recipe[]> {
+    try {
+      const response = await fetch(`${getHost()}/recipes/archive`);
+
+      return response.json();
+    } catch (error) {
+      throw new Error("Error fetching archived recipes");
+    }
+  }
+
+  async archiveRecipe(recipe: Recipe) {
+    try {
+      const response = await fetch(`${getHost()}/recipes/${recipe.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ ...recipe, isArchived: true }),
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.json();
+    } catch (error) {
+      throw new Error("Error archiving recipe");
+    }
+  }
+
+  async unArchiveRecipe(recipe: Recipe) {
+    try {
+      const response = await fetch(`${getHost()}/recipes/${recipe.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ ...recipe, isArchived: false }),
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.json();
+    } catch (error) {
+      throw new Error("Error archiving recipe");
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { getApi } from "../api/Api";
 import { Recipe } from "../types/Recipe";
-import { User } from "./useCurrentUser";
+import { User } from "../types/User";
 
 export const useFavourited = (
   recipe: Recipe,

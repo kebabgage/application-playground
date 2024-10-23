@@ -1,8 +1,7 @@
 import { Badge, Avatar as MuiAvatar, styled, Tooltip } from "@mui/material";
 import { differenceInMinutes, formatDistanceToNow } from "date-fns";
-import { User } from "../hooks/useCurrentUser";
-import { userInfo } from "os";
 import { getApi } from "../api/Api";
+import { User } from "../types/User";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {

@@ -1,6 +1,12 @@
+import DeleteIcon from "@mui/icons-material/Delete";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import HomeIcon from "@mui/icons-material/Home";
+import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   AppBar,
   Box,
+  Divider,
   IconButton,
   List,
   ListItem,
@@ -9,26 +15,20 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Slide,
+  Drawer as MuiDrawer,
   Toolbar,
   Typography,
-  useScrollTrigger,
-  Drawer as MuiDrawer,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getApi } from "../api/Api";
 import { useCountry } from "../hooks/useCountry";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { getApi } from "../api/Api";
-import { Avatar } from "./Avatar";
-import { useKeepUserActive } from "../hooks/useKeepUserActive";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from "@mui/icons-material/Search";
-import HomeIcon from "@mui/icons-material/Home";
 import { useGetUser } from "../hooks/useGetUser";
+import { useKeepUserActive } from "../hooks/useKeepUserActive";
+import { Avatar } from "./Avatar";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
 
 const getIcon = (name: string) => {
   switch (name) {
@@ -156,7 +156,7 @@ export const AppShell = () => {
             {country.title}
           </Typography>
           {userInfo !== undefined && (
-            <div>
+            <Box>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -183,17 +183,23 @@ export const AppShell = () => {
                 onClose={handleClose}
               >
                 <MenuItem onClick={() => handleClose("Profile")}>
-                  Profile
+                  <ListItemIcon>
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Profile</ListItemText>
                 </MenuItem>
+                <Divider />
                 <MenuItem onClick={() => handleClose("Logout")}>
-                  Logout
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Logout</ListItemText>
                 </MenuItem>
               </Menu>
-            </div>
+            </Box>
           )}
         </Toolbar>
       </AppBar>
-      {/* <Toolbar /> */}
     </>
   );
 };

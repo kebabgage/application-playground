@@ -1,10 +1,11 @@
 import { Alert, Box, Button, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useImmer } from "use-immer";
-import { User, useCurrentUser } from "../hooks/useCurrentUser";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { getApi } from "../api/Api";
+import { User } from "../types/User";
 
 export const LoginPage = () => {
   const navigate = useNavigate();

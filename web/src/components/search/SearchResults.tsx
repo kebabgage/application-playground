@@ -2,6 +2,10 @@ import { CircularProgress, Typography } from "@mui/material";
 import { Recipe } from "../../types/Recipe";
 import { RecipeCard } from "../RecipeCard";
 import { useNavigate } from "react-router-dom";
+import {
+  EmptySearchContent,
+  NoSearchResults,
+} from "../../pages/util/PageEmpty";
 
 interface SearchResultsProps {
   searchValue: string;
@@ -16,12 +20,10 @@ export const SearchResults = ({
 }: SearchResultsProps) => {
   const navigate = useNavigate();
 
-  if (data?.length === 0 && searchValue === "") {
-    return (
-      <Typography sx={{ alignSelf: "center" }}>
-        Enter a search value to see results
-      </Typography>
-    );
+  console.log(data);
+
+  if (data?.length === 0) {
+    return <NoSearchResults />;
   }
 
   if (isFetching) {

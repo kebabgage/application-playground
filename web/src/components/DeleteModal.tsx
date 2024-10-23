@@ -1,3 +1,4 @@
+import { LoadingButton } from "@mui/lab";
 import {
   Button,
   CircularProgress,
@@ -7,15 +8,14 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
-import { Recipe } from "../types/Recipe";
-import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Avatar } from "./Avatar";
-import { getApi } from "../api/Api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { LoadingButton } from "@mui/lab";
-import { useGetUser } from "../hooks/useGetUser";
 import { useNavigate } from "react-router-dom";
+import { getApi } from "../api/Api";
+import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useGetUser } from "../hooks/useGetUser";
+import { Recipe } from "../types/Recipe";
+import { Avatar } from "./Avatar";
 
 interface DeleteModalProps {
   recipe: Recipe;

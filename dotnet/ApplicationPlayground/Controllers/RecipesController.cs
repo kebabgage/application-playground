@@ -83,6 +83,8 @@ public static class RecipesController
         recipe.Description = inputRecipe.Description;
         recipe.ImageUrl = inputRecipe.ImageUrl;
 
+        recipe.IsArchived = inputRecipe.IsArchived;
+
         await dbContext.SaveChangesAsync();
 
         return Results.Created($"/recipes/{recipe.Id}", recipe);
@@ -138,45 +140,34 @@ public static class RecipesController
         return Results.NotFound();
     }
 
-    private static async Task<IResult> SearchRecipes(string value, AppDbContext dbContext)
-    {
-        var recipes = dbContext.Recipes.Where(r => r.Title.Contains(value) ||
-            r.Description.Contains(value) ||
-            r.Ingredients.Any(i => i.Contains(value)) ||
-            r.MethodSteps.Any(i => i.Contains(value)) ||
-            r.User.UserName.Contains(value)).Include(r => r.User);
-        return Results.Ok(recipes);
-    }
 
-    private static async Task<IResult> SearchRecipes2(SearchParameters searchOption, AppDbContext dbContext)
+    private static async Task<IResult> SearchRecipes(SearchParameters searchOption, AppDbContext dbContext)
     {
 
         IQueryable<Recipe> recipes = dbContext.Recipes;
 
-        Console.WriteLine($"{searchOption?.UserEmails?.Length}");
 
         if (searchOption?.UserEmails != null && searchOption.UserEmails.Length != 0)
         {
             recipes = recipes.Include(r => r.User).Where(r => searchOption.UserEmails.Contains(r.User.Email));
-            recipes.ToList().ForEach(r =>
-            {
-                Console.WriteLine($"{r.User.Email}");
-            });
+
         }
 
-        Console.WriteLine($"{recipes.ToArray().Length}");
 
         if (searchOption?.SearchValue != null && searchOption.SearchValue != "")
         {
-            Console.WriteLine("Filtering by serach value");
             recipes = recipes.Where(r => r.Title.Contains(searchOption.SearchValue) ||
                       r.Description.Contains(searchOption.SearchValue) ||
                       r.Ingredients.Any(i => i.Contains(searchOption.SearchValue)) ||
                       r.MethodSteps.Any(i => i.Contains(searchOption.SearchValue)));
-            Console.WriteLine($"{recipes.ToArray().Length}");
         }
 
+        return Results.Ok(recipes);
+    }
 
+    private static async Task<IResult> GetArchivedRecipes(AppDbContext dbContext)
+    {
+        var recipes = dbContext.Recipes.Where(r => r.IsArchived == true).Include(r => r.User).OrderBy(r => r.Id).ToList();
         return Results.Ok(recipes);
     }
 
@@ -192,7 +183,9 @@ public static class RecipesController
         recipes.MapPost("/", CreateRecipe);
         recipes.MapPost("/batch/", CreateRecipeBatch);
         recipes.MapDelete("/{id}", DeleteRecipe);
-        // recipes.MapGet("/search/{value}", SearchRecipes);
-        recipes.MapPost("/search/", SearchRecipes2);
+        recipes.MapPost("/search/", SearchRecipes);
+
+        var archive = recipes.MapGroup("/archive");
+        archive.MapGet("/", GetArchivedRecipes);
     }
 }

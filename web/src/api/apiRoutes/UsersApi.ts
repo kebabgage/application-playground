@@ -1,6 +1,5 @@
-import { User } from "../../hooks/useCurrentUser";
 import { getHost } from "../util";
-
+import { User } from "../../types/User";
 export class UsersApi {
   async keepUserActive(email: string) {
     try {

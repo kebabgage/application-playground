@@ -18,4 +18,6 @@ public class Recipe
 
     public string[]? FavouritedBy { get; set; }
 
+    public bool? IsArchived { get; set; }
+
 }

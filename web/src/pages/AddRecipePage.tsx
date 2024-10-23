@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   LinearProgress,
-  Slide,
   Step,
   StepLabel,
   Stepper,
@@ -18,9 +17,9 @@ import { ImageInput } from "../components/recipeForm/ImageInput";
 import { IngredientsInput } from "../components/recipeForm/IngredientsInput";
 import { MethodInput } from "../components/recipeForm/MethodInput";
 import { RecipeTitleForm } from "../components/recipeForm/TitleInput";
-import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useGetUser } from "../hooks/useGetUser";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 
 const steps = ["Title", "Description", "Ingredients", "Method", "Image"];
 
@@ -142,6 +141,8 @@ export const AddRecipePage = () => {
     },
     mutationKey: ["post", "image"],
   });
+
+  console.log(form);
 
   const { mutate, isError, isPending } = useMutation({
     mutationFn: (imageUrl: string) => {
