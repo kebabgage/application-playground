@@ -22,8 +22,6 @@ export class UsersApi {
   async updateUser(user: Partial<User>) {
     const body = JSON.stringify(user);
 
-    console.log(body);
-
     try {
       const response = await fetch(`${getHost()}/users`, {
         method: "PUT",

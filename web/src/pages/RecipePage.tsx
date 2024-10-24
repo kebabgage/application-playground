@@ -17,11 +17,12 @@ import { RecipeDescription } from "../components/recipePage/Description";
 import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { PageWrapper } from "./util/PageWrapper";
 import { getRecipeQueryKey } from "../api/util";
+import { RecipeTitle } from "../components/recipePage/Title";
 
 const RecipeHeading = styled(Typography)({
   borderBottom: "solid green",
   width: "100%",
-  paddingX: 3,
+  // paddingX: 3,
   paddingBottom: 1,
 });
 
@@ -39,7 +40,7 @@ const IngredientItem = ({ ingredient }: IngredientItemProp) => {
       onClick={() => setChecked(!checked)}
       sx={{ cursor: "pointer" }}
     >
-      <Checkbox size="small" checked={checked} />
+      <Checkbox size="small" checked={checked} sx={{ padding: "5px" }} />
       <Box>
         <Typography
           sx={{ textDecoration: checked ? "line-through" : "default" }}
@@ -91,13 +92,8 @@ export const RecipePage = () => {
   const api = getApi();
   const [search] = useSearchParams(window.location.search);
   const navigate = useNavigate();
-  const isSmallScreen = useIsSmallScreen();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const theme = useTheme();
-
-  const background = "#95D2B3";
-  const underline = "#87A2FF";
+  const [editingEnabled, setEditingEnabled] = useState(false);
 
   /**
    * The recipe id, derived from the search parameters
@@ -111,7 +107,6 @@ export const RecipePage = () => {
   }, [search]);
 
   const queryFn = () => {
-    const id = search.get("id") as unknown as number;
     if (id === null) {
       throw new Error("Id in query parameters is wrong");
     }
@@ -125,7 +120,7 @@ export const RecipePage = () => {
     isPending,
   } = useQuery({
     queryFn,
-    queryKey: getRecipeQueryKey(search.get("id") ?? undefined),
+    queryKey: getRecipeQueryKey(id ?? undefined),
     refetchInterval: 60000,
   });
 
@@ -154,7 +149,7 @@ export const RecipePage = () => {
   }
 
   return (
-    <PageWrapper>
+    <PageWrapper showBorder={editingEnabled}>
       <DeleteModal
         open={deleteModalOpen}
         setOpen={setDeleteModalOpen}
@@ -163,36 +158,44 @@ export const RecipePage = () => {
       <Box
         display="flex"
         flexDirection="row"
-        paddingX={3}
+        // paddingX={3}
         paddingBottom={3}
         width="100%"
       >
-        <RecipeHeading width="75%" flexGrow={2} variant="h4">
-          {recipe?.title}
-          {recipe.isArchived === true ? (
-            <span
-              style={{
-                color:
-                  recipe.isArchived === true
-                    ? theme.palette.grey[500]
-                    : "textPrimary",
-                fontStyle: "italic",
-              }}
-            >
-              {"  "}(archived)
-            </span>
-          ) : null}
-        </RecipeHeading>
+        <RecipeTitle
+          title={recipe.title}
+          recipe={recipe}
+          editingEnabled={editingEnabled}
+        />
+        {/* //   <RecipeHeading width="75%" flexGrow={2} variant="h4">
+      //     {recipe?.title}
+      //     {recipe.isArchived === true ? (
+      //       <span
+      //         style={{
+      //           color:
+      //             recipe.isArchived === true
+      //               ? theme.palette.grey[500]
+      //               : "textPrimary",
+      //           fontStyle: "italic",
+      //         }}
+      //       >
+      //         {"  "}(archived)
+      //       </span>
+      //     ) : null}
+      //   </RecipeHeading> */}
       </Box>
       <Box
         width="100%"
         display="flex"
         flexDirection={"column"}
-        paddingX={3}
+        // paddingX={3}
         gap={2}
       >
-        <RecipeDescription description={recipe.description} />
-        <ActionsHeading recipe={recipe} />
+        <ActionsHeading
+          recipe={recipe}
+          editMode={editingEnabled}
+          setEditMode={setEditingEnabled}
+        />
         {recipe.imageUrl !== undefined && recipe.imageUrl !== "" && (
           <Box sx={{ maxHeight: "30rem", borderRadius: "5px" }}>
             <img
@@ -205,6 +208,7 @@ export const RecipePage = () => {
             />
           </Box>
         )}
+        <RecipeDescription description={recipe.description} />
       </Box>
 
       {/* Ingredients and Method  */}
@@ -213,7 +217,7 @@ export const RecipePage = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          paddingX: 3,
+          // paddingX: 3,
           gap: 4,
           paddingBottom: 3,
         }}

@@ -24,7 +24,7 @@ export class FavouritesApi {
   }
 
   async removeFromFavourites(favouriteId: number) {
-    console.log("Trying to delete", favouriteId);
+    // console.log("Trying to delete", favouriteId);
     try {
       await fetch(`${getHost()}/favourites/${favouriteId}`, {
         method: "DELETE",

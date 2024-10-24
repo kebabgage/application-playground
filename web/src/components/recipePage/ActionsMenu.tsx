@@ -20,9 +20,15 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
 interface ActionsHeadingProps {
   recipe: Recipe;
+  editMode: boolean;
+  setEditMode: (editMode: boolean) => void;
 }
 
-export const ActionsHeading = ({ recipe }: ActionsHeadingProps) => {
+export const ActionsHeading = ({
+  recipe,
+  editMode,
+  setEditMode,
+}: ActionsHeadingProps) => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -33,6 +39,9 @@ export const ActionsHeading = ({ recipe }: ActionsHeadingProps) => {
   const handleClose = async (option: "Archive" | "Delete" | "Edit") => {
     setAnchorEl(null);
     switch (option) {
+      case "Edit":
+        setEditMode(!editMode);
+        break;
       case "Archive":
         setOpen(true);
         break;

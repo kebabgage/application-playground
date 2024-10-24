@@ -164,11 +164,7 @@ export const ArchiveRecipeMenuItem = ({
       if (recipe.isArchived === true) {
         return api.recipes.unArchiveRecipe(recipe);
       }
-      // else {
       return api.recipes.archiveRecipe(recipe);
-      // }
-
-      // setDeleting(true);
     },
     onSuccess: () => {
       setOpen(false);
@@ -176,6 +172,8 @@ export const ArchiveRecipeMenuItem = ({
       queryClient.invalidateQueries({
         queryKey: getRecipeQueryKey(recipe.id),
       });
+
+      handleClose();
     },
   });
 
@@ -183,8 +181,6 @@ export const ArchiveRecipeMenuItem = ({
     <>
       <MenuItem
         onClick={() => {
-          // setOpen(true);
-          // handleClose();
           mutate();
         }}
       >

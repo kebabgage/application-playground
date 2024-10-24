@@ -10,7 +10,6 @@ export const useFavourited = (
   const api = getApi();
 
   const queryFn = () => {
-    console.log("querying fav");
     if (user === undefined) {
       throw new Error("Can't fetch is user is undefined");
     }
@@ -23,8 +22,6 @@ export const useFavourited = (
     queryKey: ["favourites", `user=${user?.id}`, `recipe=${recipe.id}`],
     retry: false,
   });
-
-  console.log(data);
 
   if (data === undefined || isError === true) {
     return { favourited: false };

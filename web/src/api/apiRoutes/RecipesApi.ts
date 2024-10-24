@@ -44,6 +44,19 @@ export class RecipesApi {
     return response.json();
   }
 
+  async updateRecipe(recipe: Recipe): Promise<Recipe> {
+    const response = await fetch(`${getHost()}/recipes/${recipe.id}`, {
+      method: "PUT",
+      body: JSON.stringify(recipe),
+      headers: {
+        Accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.json();
+  }
+
   async deleteRecipe(id: number): Promise<void> {
     try {
       const response = await fetch(`${getHost()}/recipes/${id}`, {
